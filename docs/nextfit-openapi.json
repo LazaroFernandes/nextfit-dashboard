@@ -1,0 +1,2410 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Swagger API Pública Next Fit",
+    "version": "v1"
+  },
+  "paths": {
+    "/api/v{version}/Agenda": {
+      "get": {
+        "tags": [
+          "Agenda"
+        ],
+        "summary": "Lista de agendas",
+        "parameters": [
+          {
+            "name": "DataInicial",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "DataFinal",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "DataAlteracaoInicio",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "DataAlteracaoFim",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "Skip",
+            "in": "query",
+            "schema": {
+              "maximum": 2147483647,
+              "minimum": 0,
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Take",
+            "in": "query",
+            "schema": {
+              "maximum": 2147483647,
+              "minimum": 1,
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "version",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "operação com sucesso",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgendaViewPagedResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgendaViewPagedResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgendaViewPagedResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "request inválido"
+          }
+        }
+      }
+    },
+    "/api/v{version}/ContaReceber": {
+      "get": {
+        "tags": [
+          "ContaReceber"
+        ],
+        "summary": "Lista de contas a receber",
+        "parameters": [
+          {
+            "name": "CodigoCliente",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Status",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/EnumStatusReceber"
+            }
+          },
+          {
+            "name": "DataVencimentoInicio",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "DataVencimentoFim",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "DataAlteracaoInicio",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "DataAlteracaoFim",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "Skip",
+            "in": "query",
+            "schema": {
+              "maximum": 2147483647,
+              "minimum": 0,
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Take",
+            "in": "query",
+            "schema": {
+              "maximum": 2147483647,
+              "minimum": 1,
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "version",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "operação com sucesso",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReceberViewPagedResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReceberViewPagedResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReceberViewPagedResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "request inválido"
+          }
+        }
+      }
+    },
+    "/api/v{version}/ContratoBase": {
+      "get": {
+        "tags": [
+          "ContratoBase"
+        ],
+        "summary": "Lista de Contratos Base",
+        "parameters": [
+          {
+            "name": "Inativo",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "DataAlteracaoInicio",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "DataAlteracaoFim",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "Skip",
+            "in": "query",
+            "schema": {
+              "maximum": 2147483647,
+              "minimum": 0,
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Take",
+            "in": "query",
+            "schema": {
+              "maximum": 2147483647,
+              "minimum": 1,
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "version",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "operação com sucesso",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContratoBaseViewPagedResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContratoBaseViewPagedResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContratoBaseViewPagedResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "request inválido"
+          }
+        }
+      }
+    },
+    "/api/v{version}/ContratoCliente": {
+      "get": {
+        "tags": [
+          "ContratoCliente"
+        ],
+        "summary": "Lista de contratos",
+        "parameters": [
+          {
+            "name": "CodigoCliente",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Status",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/EnumStatusContratoCliente"
+            }
+          },
+          {
+            "name": "DataInicioInicio",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "DataInicioFim",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "DataValidadeInicio",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "DataValidadeFim",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "DataEncerramentoInicio",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "DataEncerramentoFim",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "DataAlteracaoInicio",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "DataAlteracaoFim",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "Skip",
+            "in": "query",
+            "schema": {
+              "maximum": 2147483647,
+              "minimum": 0,
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Take",
+            "in": "query",
+            "schema": {
+              "maximum": 2147483647,
+              "minimum": 1,
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "version",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "operação com sucesso",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContratoClienteViewPagedResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContratoClienteViewPagedResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContratoClienteViewPagedResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "request inválido"
+          }
+        }
+      }
+    },
+    "/api/v{version}/MovimentoFinanceiro": {
+      "get": {
+        "tags": [
+          "MovimentoFinanceiro"
+        ],
+        "summary": "Lista de Movimentos Financeiros",
+        "parameters": [
+          {
+            "name": "CodigoContaFinanc",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "DataMovimentacaoInicio",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "DataMovimentacaoFim",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "Status",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/EnumStatusMovtoFinanc"
+            }
+          },
+          {
+            "name": "DataAlteracaoInicio",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "DataAlteracaoFim",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "Skip",
+            "in": "query",
+            "schema": {
+              "maximum": 2147483647,
+              "minimum": 0,
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Take",
+            "in": "query",
+            "schema": {
+              "maximum": 2147483647,
+              "minimum": 1,
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "version",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "operação com sucesso",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/MovtoFinancViewPagedResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MovtoFinancViewPagedResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MovtoFinancViewPagedResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "request inválido"
+          }
+        }
+      }
+    },
+    "/api/v{version}/Oportunidade": {
+      "get": {
+        "tags": [
+          "Oportunidade"
+        ],
+        "summary": "Lista de Oportunidades",
+        "parameters": [
+          {
+            "name": "CodigoPessoa",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Inativo",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "DataAlteracaoInicio",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "DataAlteracaoFim",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "Skip",
+            "in": "query",
+            "schema": {
+              "maximum": 2147483647,
+              "minimum": 0,
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Take",
+            "in": "query",
+            "schema": {
+              "maximum": 2147483647,
+              "minimum": 1,
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "version",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "operação com sucesso",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/OportunidadeViewPagedResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OportunidadeViewPagedResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OportunidadeViewPagedResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "request inválido"
+          }
+        }
+      }
+    },
+    "/api/v{version}/Pessoa/GetClientes": {
+      "get": {
+        "tags": [
+          "Pessoa"
+        ],
+        "summary": "Lista de Clientes",
+        "parameters": [
+          {
+            "name": "Nome",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Email",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Cpf",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Inativo",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "DataAlteracaoInicio",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "DataAlteracaoFim",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "Skip",
+            "in": "query",
+            "schema": {
+              "maximum": 2147483647,
+              "minimum": 0,
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Take",
+            "in": "query",
+            "schema": {
+              "maximum": 2147483647,
+              "minimum": 1,
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "version",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "operação com sucesso",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PessoaViewPagedResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PessoaViewPagedResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PessoaViewPagedResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "request inválido"
+          }
+        }
+      }
+    },
+    "/api/v{version}/Pessoa/GetLeads": {
+      "get": {
+        "tags": [
+          "Pessoa"
+        ],
+        "summary": "Lista de Leads",
+        "parameters": [
+          {
+            "name": "Nome",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Email",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Cpf",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Inativo",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "DataAlteracaoInicio",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "DataAlteracaoFim",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "Skip",
+            "in": "query",
+            "schema": {
+              "maximum": 2147483647,
+              "minimum": 0,
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Take",
+            "in": "query",
+            "schema": {
+              "maximum": 2147483647,
+              "minimum": 1,
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "version",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "operação com sucesso",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PessoaViewPagedResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PessoaViewPagedResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PessoaViewPagedResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "request inválido"
+          }
+        }
+      }
+    },
+    "/api/v{version}/Pessoa/GetUsuarios": {
+      "get": {
+        "tags": [
+          "Pessoa"
+        ],
+        "summary": "Lista de Usuarios",
+        "parameters": [
+          {
+            "name": "Nome",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Email",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Cpf",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Inativo",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "DataAlteracaoInicio",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "DataAlteracaoFim",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "Skip",
+            "in": "query",
+            "schema": {
+              "maximum": 2147483647,
+              "minimum": 0,
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Take",
+            "in": "query",
+            "schema": {
+              "maximum": 2147483647,
+              "minimum": 1,
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "version",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "operação com sucesso",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PessoaViewPagedResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PessoaViewPagedResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PessoaViewPagedResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "request inválido"
+          }
+        }
+      }
+    },
+    "/api/v{version}/Venda": {
+      "get": {
+        "tags": [
+          "Venda"
+        ],
+        "summary": "Lista de Vendas",
+        "parameters": [
+          {
+            "name": "CodigoCliente",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Status",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/EnumStatusVenda"
+            }
+          },
+          {
+            "name": "DataInicio",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "DataFim",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "DataAlteracaoInicio",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "DataAlteracaoFim",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "Skip",
+            "in": "query",
+            "schema": {
+              "maximum": 2147483647,
+              "minimum": 0,
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Take",
+            "in": "query",
+            "schema": {
+              "maximum": 2147483647,
+              "minimum": 1,
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "version",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "operação com sucesso",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/VendaViewPagedResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VendaViewPagedResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VendaViewPagedResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "request inválido"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AgendaParticipanteClienteView": {
+        "type": "object",
+        "properties": {
+          "nome": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "AgendaParticipanteView": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "dataCriacao": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dataAlteracao": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "codigoUsuarioCriacao": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "codigoUsuarioAlteracao": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "codigoAgenda": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "tipo": {
+            "$ref": "#/components/schemas/EnumTipoAgendaParticipante"
+          },
+          "codigoCliente": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "codigoOrigem": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "codigoOportunidade": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "origem": {
+            "$ref": "#/components/schemas/EnumOrigemAgendaParticipante"
+          },
+          "status": {
+            "$ref": "#/components/schemas/EnumStatusAgendaParticipante"
+          },
+          "cliente": {
+            "$ref": "#/components/schemas/AgendaParticipanteClienteView"
+          },
+          "oportunidade": {
+            "$ref": "#/components/schemas/AgendaParticipanteClienteView"
+          }
+        },
+        "additionalProperties": false
+      },
+      "AgendaView": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "dataCriacao": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dataAlteracao": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "codigoUsuarioCriacao": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "codigoUsuarioAlteracao": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "dataInicial": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dataFinal": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "descricao": {
+            "type": "string",
+            "nullable": true
+          },
+          "tipo": {
+            "$ref": "#/components/schemas/EnumTipoAgenda"
+          },
+          "participantes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AgendaParticipanteView"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "AgendaViewPagedResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AgendaView"
+            },
+            "nullable": true
+          },
+          "temProximaPagina": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ContratoBaseView": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "dataCriacao": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dataAlteracao": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "codigoUsuarioCriacao": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "codigoUsuarioAlteracao": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "descricao": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ContratoBaseViewPagedResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContratoBaseView"
+            },
+            "nullable": true
+          },
+          "temProximaPagina": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ContratoClienteModalidadeView": {
+        "type": "object",
+        "properties": {
+          "tipo": {
+            "$ref": "#/components/schemas/EnumTipoContratoBaseModalidade"
+          },
+          "codigoModalidade": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ContratoClienteView": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "dataCriacao": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dataAlteracao": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "codigoUsuarioCriacao": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "codigoUsuarioAlteracao": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "codigoCliente": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "codigoContratoBase": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "codigoMotivoEncerramentoContrato": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "dataInicio": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dataBloqueio": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "dataRenovacao": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "dataEncerramento": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "dataValidade": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "$ref": "#/components/schemas/EnumStatusContratoCliente"
+          },
+          "tipo": {
+            "$ref": "#/components/schemas/EnumTipoContratoBase"
+          },
+          "tipoDuracao": {
+            "$ref": "#/components/schemas/EnumTipoDuracao"
+          },
+          "tempoDuracao": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "valorOriginal": {
+            "type": "number",
+            "format": "double"
+          },
+          "valorAdesao": {
+            "type": "number",
+            "format": "double"
+          },
+          "percentualDesconto": {
+            "type": "number",
+            "format": "double"
+          },
+          "valorDesconto": {
+            "type": "number",
+            "format": "double"
+          },
+          "valorTotal": {
+            "type": "number",
+            "format": "double"
+          },
+          "dataSuspensao": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "recorrente": {
+            "type": "boolean"
+          },
+          "modalidades": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContratoClienteModalidadeView"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ContratoClienteViewPagedResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContratoClienteView"
+            },
+            "nullable": true
+          },
+          "temProximaPagina": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "EnumEntradaSaida": {
+        "enum": [
+          "Entrada",
+          "Saida"
+        ],
+        "type": "string"
+      },
+      "EnumMetodoPagamento": {
+        "enum": [
+          "CartaoCredito",
+          "CartaoDebito",
+          "Dinheiro",
+          "Boleto",
+          "Cheque",
+          "Credito",
+          "Transferencia",
+          "DepositoBancario"
+        ],
+        "type": "string"
+      },
+      "EnumOrigem": {
+        "enum": [
+          "Manual",
+          "Item",
+          "MetodoPagamento",
+          "Receber",
+          "Caixa",
+          "Venda",
+          "Pagar",
+          "ReceberRecorrente",
+          "PagarRecorrente",
+          "ReceberRenegociacao",
+          "PagarRenegociacao",
+          "Contrato",
+          "ContratoCliente",
+          "Agenda",
+          "Campanha",
+          "CampanhaAtingido",
+          "TenantFatura",
+          "ClienteCredito",
+          "CaixaMovimento",
+          "MovtoFinanc",
+          "Transacao",
+          "GraduacaoCliente",
+          "Comissao",
+          "ConfigGympass",
+          "ImportacaoGympass",
+          "Treino",
+          "AvaliacaoFisica",
+          "Noticia",
+          "LocalAgenda",
+          "Chat",
+          "RecebaFacil",
+          "Exercicio",
+          "DocumentosCliente",
+          "ConfigSiteVenda",
+          "Cliente",
+          "Tenant",
+          "Template",
+          "Usuario",
+          "CampanhaAnexo",
+          "CampanhaImagem",
+          "TransferenciaMoip",
+          "ReceberTransacao",
+          "DocumentosUsuario",
+          "Wod",
+          "ConfigNfse",
+          "Nfse",
+          "GradeHorario",
+          "Importacao",
+          "ConfigPagtoOnlineDoc",
+          "AntecipacaoPay",
+          "ConfigContrato",
+          "ConfigContratoBloqueio",
+          "ConfigReceber",
+          "ConfigComissao",
+          "ConfigAgenda",
+          "ConfigAppAluno",
+          "ConfigControleAcesso",
+          "ConfigGeral",
+          "ConfigVip",
+          "ConfigCaixa",
+          "SiteVenda",
+          "SiteAgendamento",
+          "CapturaRecebiveisGateway",
+          "ClienteFacial",
+          "UsuarioFacial",
+          "ConfigCamposObrigatorios",
+          "Sessao",
+          "TreinoSessaoExercicio",
+          "ContestacaoPay",
+          "AlertaPay",
+          "AgendaParticipante",
+          "PagarAnexo",
+          "DepositoDiretoPay",
+          "ClienteServico",
+          "ConfigTotalPass",
+          "ReceberEstorno",
+          "Pessoa",
+          "Lead",
+          "Oportunidade",
+          "AgendaFilaEspera",
+          "Atividade",
+          "RetentativaCobranca",
+          "RecuperacaoCobranca",
+          "Automacao",
+          "MovtoEstorno",
+          "ConfigAppMensagens"
+        ],
+        "type": "string"
+      },
+      "EnumOrigemAgendaParticipante": {
+        "enum": [
+          "Matricula",
+          "Manual",
+          "AppAluno",
+          "Gympass",
+          "SiteAgendamento",
+          "SiteReservas",
+          "FilaEspera",
+          "TotalPass",
+          "AppMensagens"
+        ],
+        "type": "string"
+      },
+      "EnumStatusAgendaParticipante": {
+        "enum": [
+          "Reservado",
+          "Presente",
+          "Falta",
+          "FaltaJustificada",
+          "Bloqueado",
+          "Suspenso",
+          "Cancelado",
+          "Desistente"
+        ],
+        "type": "string"
+      },
+      "EnumStatusContratoCliente": {
+        "enum": [
+          "Ativo",
+          "Cancelado",
+          "Encerrado",
+          "Suspenso",
+          "Bloqueado",
+          "Agendado",
+          "Erro"
+        ],
+        "type": "string"
+      },
+      "EnumStatusMovtoFinanc": {
+        "enum": [
+          "AguardandoEfetivacao",
+          "Efetivado"
+        ],
+        "type": "string"
+      },
+      "EnumStatusOportunidade": {
+        "enum": [
+          "EmAberta",
+          "Ganhou",
+          "Perdeu"
+        ],
+        "type": "string"
+      },
+      "EnumStatusReceber": {
+        "enum": [
+          "Aberto",
+          "Recebido",
+          "Cancelado",
+          "Renegociado",
+          "EmAndamento"
+        ],
+        "type": "string"
+      },
+      "EnumStatusVenda": {
+        "enum": [
+          "Concluida",
+          "Cancelada",
+          "Pendente",
+          "Agendada",
+          "Erro",
+          "Processando"
+        ],
+        "type": "string"
+      },
+      "EnumTipoAgenda": {
+        "enum": [
+          "Contrato",
+          "Servico",
+          "Locacao"
+        ],
+        "type": "string"
+      },
+      "EnumTipoAgendaParticipante": {
+        "enum": [
+          "Cliente",
+          "ContratoCliente",
+          "Oportunidade",
+          "ClienteServico"
+        ],
+        "type": "string"
+      },
+      "EnumTipoContratoBase": {
+        "enum": [
+          "Padrao",
+          "Gympass",
+          "GympassBooking",
+          "TotalPass",
+          "TotalPassBooking"
+        ],
+        "type": "string"
+      },
+      "EnumTipoContratoBaseModalidade": {
+        "enum": [
+          "Periodo",
+          "Sessao",
+          "PacoteAulas"
+        ],
+        "type": "string"
+      },
+      "EnumTipoDuracao": {
+        "enum": [
+          "Dia",
+          "Semana",
+          "Mes"
+        ],
+        "type": "string"
+      },
+      "EnumTipoMetodoPagamentoConfig": {
+        "enum": [
+          "Manual",
+          "CartaoNextFitPay",
+          "BoletoNextFitPay",
+          "PixNextFitPay",
+          "CartaoPagarMe"
+        ],
+        "type": "string"
+      },
+      "MovtoFinancView": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "dataCriacao": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dataAlteracao": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "codigoUsuarioCriacao": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "codigoUsuarioAlteracao": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "codigoContaFinanc": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "dataMovimentacao": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dataEfetivacao": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "tipo": {
+            "$ref": "#/components/schemas/EnumEntradaSaida"
+          },
+          "valor": {
+            "type": "number",
+            "format": "double"
+          },
+          "valorOriginal": {
+            "type": "number",
+            "format": "double"
+          },
+          "valorDesconto": {
+            "type": "number",
+            "format": "double"
+          },
+          "valorMulta": {
+            "type": "number",
+            "format": "double"
+          },
+          "valorTaxa": {
+            "type": "number",
+            "format": "double"
+          },
+          "status": {
+            "$ref": "#/components/schemas/EnumStatusMovtoFinanc"
+          },
+          "descricao": {
+            "type": "string",
+            "nullable": true
+          },
+          "tipoMetodo": {
+            "$ref": "#/components/schemas/EnumMetodoPagamento"
+          },
+          "tipoMetodoConfig": {
+            "$ref": "#/components/schemas/EnumTipoMetodoPagamentoConfig"
+          },
+          "antecipado": {
+            "type": "boolean"
+          },
+          "codigoUsuario": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "codigoCliente": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "codigoFornecedor": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "numeroAutorizacao": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "MovtoFinancViewPagedResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MovtoFinancView"
+            },
+            "nullable": true
+          },
+          "temProximaPagina": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "OportunidadeView": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "dataCriacao": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dataAlteracao": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "codigoUsuarioCriacao": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "codigoUsuarioAlteracao": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "descricao": {
+            "type": "string",
+            "nullable": true
+          },
+          "codigoPessoa": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "codigoFunilEtapa": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "ordem": {
+            "type": "number",
+            "format": "double"
+          },
+          "status": {
+            "$ref": "#/components/schemas/EnumStatusOportunidade"
+          },
+          "codigoUsuario": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "dataGanhou": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "readOnly": true
+          },
+          "dataPerdeu": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "readOnly": true
+          },
+          "codigoMotivoPerda": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true,
+            "readOnly": true
+          },
+          "inativo": {
+            "type": "boolean"
+          },
+          "codigoNivelInteresse": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "codigoTipoVisita": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "codigoComoConheceu": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "origemComoConheceu": {
+            "type": "string",
+            "nullable": true
+          },
+          "codigoIndicacao": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "OportunidadeViewPagedResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OportunidadeView"
+            },
+            "nullable": true
+          },
+          "temProximaPagina": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PessoaClienteView": {
+        "type": "object",
+        "properties": {
+          "codigoUsuarioProfessor": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "PessoaView": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "dataCriacao": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dataAlteracao": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "codigoUsuarioCriacao": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "codigoUsuarioAlteracao": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "nome": {
+            "type": "string",
+            "nullable": true
+          },
+          "dataCadastro": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "temResponsavel": {
+            "type": "boolean"
+          },
+          "codigoClienteResponsavel": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "observacao": {
+            "type": "string",
+            "nullable": true
+          },
+          "dddFone": {
+            "type": "string",
+            "nullable": true
+          },
+          "fone": {
+            "type": "string",
+            "nullable": true
+          },
+          "sexo": {
+            "type": "string",
+            "nullable": true
+          },
+          "dataNascimento": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "cpf": {
+            "type": "string",
+            "nullable": true
+          },
+          "rg": {
+            "type": "string",
+            "nullable": true
+          },
+          "codigoObjetivo": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "cep": {
+            "type": "string",
+            "nullable": true
+          },
+          "endereco": {
+            "type": "string",
+            "nullable": true
+          },
+          "numEndereco": {
+            "type": "string",
+            "nullable": true
+          },
+          "compleEndereco": {
+            "type": "string",
+            "nullable": true
+          },
+          "bairro": {
+            "type": "string",
+            "nullable": true
+          },
+          "codigoCidade": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "codigoUsuarioConsultor": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "inativo": {
+            "type": "boolean"
+          },
+          "cliente": {
+            "$ref": "#/components/schemas/PessoaClienteView"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PessoaViewPagedResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PessoaView"
+            },
+            "nullable": true
+          },
+          "temProximaPagina": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ReceberOrigemView": {
+        "type": "object",
+        "properties": {
+          "origem": {
+            "$ref": "#/components/schemas/EnumOrigem"
+          },
+          "codigoOrigem": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "percVenda": {
+            "type": "number",
+            "format": "double"
+          },
+          "codigoCategoriaReceita": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ReceberRecebimentoView": {
+        "type": "object",
+        "properties": {
+          "codigoMetodoPagamento": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "codigoMetodoPagamentoConfig": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "numeroParcelas": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "numeroAutorizacao": {
+            "type": "string",
+            "nullable": true
+          },
+          "dataRecebimento": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "valorDevido": {
+            "type": "number",
+            "format": "double"
+          },
+          "percentualDesconto": {
+            "type": "number",
+            "format": "double"
+          },
+          "valorDesconto": {
+            "type": "number",
+            "format": "double"
+          },
+          "percentualMulta": {
+            "type": "number",
+            "format": "double"
+          },
+          "valorMulta": {
+            "type": "number",
+            "format": "double"
+          },
+          "incluirTaxaNoValor": {
+            "type": "boolean"
+          },
+          "valorTaxa": {
+            "type": "number",
+            "format": "double"
+          },
+          "valorCredito": {
+            "type": "number",
+            "format": "double"
+          },
+          "valorRecebido": {
+            "type": "number",
+            "format": "double"
+          },
+          "codigoUsuarioRecebimento": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "saldo": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ReceberView": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "dataCriacao": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dataAlteracao": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "codigoUsuarioCriacao": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "codigoUsuarioAlteracao": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "codigoCliente": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "codigoTipoReceber": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "dataHora": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dataVencimento": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "valor": {
+            "type": "number",
+            "format": "double"
+          },
+          "observacao": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "$ref": "#/components/schemas/EnumStatusReceber"
+          },
+          "codigoUsuario": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "descricao": {
+            "type": "string",
+            "nullable": true
+          },
+          "recorrente": {
+            "type": "boolean"
+          },
+          "receberRecebimento": {
+            "$ref": "#/components/schemas/ReceberRecebimentoView"
+          },
+          "receberOrigem": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReceberOrigemView"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ReceberViewPagedResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReceberView"
+            },
+            "nullable": true
+          },
+          "temProximaPagina": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "VendaContratoView": {
+        "type": "object",
+        "properties": {
+          "codigoContratoBase": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "dataInicio": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "valorOriginal": {
+            "type": "number",
+            "format": "double"
+          },
+          "percentualDesconto": {
+            "type": "number",
+            "format": "double"
+          },
+          "valorDesconto": {
+            "type": "number",
+            "format": "double"
+          },
+          "valorTotal": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "VendaItemView": {
+        "type": "object",
+        "properties": {
+          "codigoItem": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "qtde": {
+            "type": "number",
+            "format": "double"
+          },
+          "preco": {
+            "type": "number",
+            "format": "double"
+          },
+          "percentualDesconto": {
+            "type": "number",
+            "format": "double"
+          },
+          "valorDesconto": {
+            "type": "number",
+            "format": "double"
+          },
+          "valorTotal": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "VendaParcelaView": {
+        "type": "object",
+        "properties": {
+          "numero": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "dataVencimento": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "codigoReceber": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "valor": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "VendaView": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "dataCriacao": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dataAlteracao": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "codigoUsuarioCriacao": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "codigoUsuarioAlteracao": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "codigoCliente": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "data": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "valorOriginal": {
+            "type": "number",
+            "format": "double"
+          },
+          "percentualDesconto": {
+            "type": "number",
+            "format": "double"
+          },
+          "valorDesconto": {
+            "type": "number",
+            "format": "double"
+          },
+          "valorTotal": {
+            "type": "number",
+            "format": "double"
+          },
+          "codigoUsuario": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "$ref": "#/components/schemas/EnumStatusVenda"
+          },
+          "descricao": {
+            "type": "string",
+            "nullable": true
+          },
+          "gympass": {
+            "type": "boolean"
+          },
+          "totalPass": {
+            "type": "boolean"
+          },
+          "renovarAutomaticamente": {
+            "type": "boolean"
+          },
+          "recorrente": {
+            "type": "boolean"
+          },
+          "vendaItem": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VendaItemView"
+            },
+            "nullable": true
+          },
+          "vendaContrato": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VendaContratoView"
+            },
+            "nullable": true
+          },
+          "vendaParcela": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VendaParcelaView"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "VendaViewPagedResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VendaView"
+            },
+            "nullable": true
+          },
+          "temProximaPagina": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "securitySchemes": {
+      "ApiKey": {
+        "type": "apiKey",
+        "description": "Api Key para acessar a API",
+        "name": "X-Api-Key",
+        "in": "header"
+      }
+    }
+  },
+  "security": [
+    {
+      "ApiKey": [ ]
+    }
+  ]
+}
