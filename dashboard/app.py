@@ -70,13 +70,20 @@ def carregar_historico() -> pd.DataFrame:
 
 
 def _parse_carga(valor: str) -> float | None:
-    """Extrai o primeiro número da string de carga (aceita vírgula, 'kg', etc.)."""
+    """Extrai a carga máxima da string (formato multi-série tipo '20/20/22/0').
+
+    Zeros são ignorados (representam séries não utilizadas no cadastro).
+    """
     if not valor or valor.lower() in {"nan", "none", ""}:
         return None
-    m = re.search(r"(\d+(?:[.,]\d+)?)", valor)
-    if not m:
+    numeros = [
+        float(m.replace(",", "."))
+        for m in re.findall(r"\d+(?:[.,]\d+)?", valor)
+    ]
+    positivos = [n for n in numeros if n > 0]
+    if not positivos:
         return None
-    return float(m.group(1).replace(",", "."))
+    return max(positivos)
 
 
 @st.dialog("📈 Evolução do exercício", width="large")
@@ -91,13 +98,14 @@ def mostrar_evolucao(df_ex: pd.DataFrame, exercicio: str, sessao: str) -> None:
         st.info("Ainda não há cargas numéricas para plotar. Mostrando histórico textual.")
     else:
         chart = plotaveis.set_index("DataCaptura")[["CargaNum"]].rename(
-            columns={"CargaNum": "Carga (kg)"}
+            columns={"CargaNum": "Carga máx. (kg)"}
         )
         st.line_chart(chart, height=360)
+        st.caption("Carga máxima por sessão (ignora séries com carga 0).")
 
         c1, c2, c3 = st.columns(3)
-        c1.metric("Carga atual", f"{plotaveis['CargaNum'].iloc[-1]:g} kg")
-        c2.metric("Carga máxima", f"{plotaveis['CargaNum'].max():g} kg")
+        c1.metric("Última", f"{plotaveis['CargaNum'].iloc[-1]:g} kg")
+        c2.metric("Recorde", f"{plotaveis['CargaNum'].max():g} kg")
         delta = plotaveis["CargaNum"].iloc[-1] - plotaveis["CargaNum"].iloc[0]
         c3.metric(
             "Variação total",
