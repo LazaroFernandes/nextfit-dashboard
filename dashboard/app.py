@@ -14,6 +14,7 @@ import re
 import sys
 from pathlib import Path
 
+import altair as alt
 import pandas as pd
 import streamlit as st
 from dotenv import load_dotenv
@@ -97,10 +98,27 @@ def mostrar_evolucao(df_ex: pd.DataFrame, exercicio: str, sessao: str) -> None:
     if plotaveis.empty:
         st.info("Ainda não há cargas numéricas para plotar. Mostrando histórico textual.")
     else:
-        chart = plotaveis.set_index("DataCaptura")[["CargaNum"]].rename(
-            columns={"CargaNum": "Carga máx. (kg)"}
+        chart_df = plotaveis[["DataCaptura", "CargaNum"]].rename(
+            columns={"DataCaptura": "Data", "CargaNum": "Carga"}
         )
-        st.line_chart(chart, height=360)
+        chart = (
+            alt.Chart(chart_df)
+            .mark_line(point=alt.OverlayMarkDef(size=80, filled=True))
+            .encode(
+                x=alt.X("Data:T", title="Data"),
+                y=alt.Y(
+                    "Carga:Q",
+                    title="Carga máx. (kg)",
+                    scale=alt.Scale(zero=False, padding=10),
+                ),
+                tooltip=[
+                    alt.Tooltip("Data:T", title="Data", format="%d/%m/%Y"),
+                    alt.Tooltip("Carga:Q", title="Carga (kg)"),
+                ],
+            )
+            .properties(height=360)
+        )
+        st.altair_chart(chart, use_container_width=True)
         st.caption("Carga máxima por sessão (ignora séries com carga 0).")
 
         c1, c2, c3 = st.columns(3)
