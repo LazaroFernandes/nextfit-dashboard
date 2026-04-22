@@ -1,8 +1,11 @@
 """Dashboard Streamlit — evolução de cargas por aluno.
 
-Lê a aba HistoricoTreinos do Google Sheets. Cada DataCaptura é um snapshot
-do treino do aluno naquele dia; a evolução é a série temporal de Carga
-para um mesmo par (Exercicio, Sessao).
+Lê duas abas do Google Sheets:
+- `Treinos`: estado atual da ficha de cada aluno (overwrite a cada sync)
+- `HistoricoExecucoes`: log de execuções (1 entrada por sessão concluída)
+
+A evolução é a série temporal de Carga em HistoricoExecucoes para um mesmo
+par (Exercicio, Sessao). O "Treino atual" e o "Volume" vêm de Treinos.
 
 Para rodar:
     streamlit run dashboard/app.py
@@ -57,16 +60,38 @@ st.set_page_config(
 )
 
 
-@st.cache_data(ttl=300, show_spinner="Carregando histórico...")
-def carregar_historico() -> pd.DataFrame:
+def _carregar_aba(tab_name: str) -> pd.DataFrame:
     client = _build_sheets_client()
-    ws = client.spreadsheet.worksheet("HistoricoTreinos")
+    try:
+        ws = client.spreadsheet.worksheet(tab_name)
+    except Exception:
+        return pd.DataFrame()
     rows = ws.get_all_records()
-    df = pd.DataFrame(rows)
+    return pd.DataFrame(rows)
+
+
+@st.cache_data(ttl=300, show_spinner="Carregando execuções...")
+def carregar_execucoes() -> pd.DataFrame:
+    df = _carregar_aba("HistoricoExecucoes")
     if df.empty:
         return df
-    df["DataCaptura"] = pd.to_datetime(df["DataCaptura"], errors="coerce")
+    # Prioriza TimestampExecucao (momento exato); cai pra DataCaptura (YYYY-MM-DD)
+    if "TimestampExecucao" in df.columns:
+        df["DataExecucao"] = pd.to_datetime(df["TimestampExecucao"], errors="coerce", utc=True)
+    else:
+        df["DataExecucao"] = pd.NaT
+    fallback = pd.to_datetime(df.get("DataCaptura"), errors="coerce")
+    df["DataExecucao"] = df["DataExecucao"].fillna(fallback)
     df["CargaNum"] = df["Carga"].astype(str).apply(_parse_carga)
+    return df
+
+
+@st.cache_data(ttl=300, show_spinner="Carregando treinos...")
+def carregar_treinos() -> pd.DataFrame:
+    df = _carregar_aba("Treinos")
+    if df.empty:
+        return df
+    df["DataCaptura"] = pd.to_datetime(df.get("DataCaptura"), errors="coerce")
     return df
 
 
@@ -90,16 +115,20 @@ def _parse_carga(valor: str) -> float | None:
 @st.dialog("📈 Evolução do exercício", width="large")
 def mostrar_evolucao(df_ex: pd.DataFrame, exercicio: str, sessao: str) -> None:
     st.markdown(f"### {exercicio}")
-    st.caption(f"Sessão {sessao} · {len(df_ex)} registro(s)")
+    st.caption(f"Sessão {sessao} · {len(df_ex)} execução(ões)")
 
-    dados = df_ex.sort_values("DataCaptura").copy()
-    plotaveis = dados.dropna(subset=["DataCaptura", "CargaNum"])
+    if df_ex.empty or "DataExecucao" not in df_ex.columns:
+        st.info("Ainda não há execuções registradas pra este exercício.")
+        return
+
+    dados = df_ex.sort_values("DataExecucao").copy()
+    plotaveis = dados.dropna(subset=["DataExecucao", "CargaNum"])
 
     if plotaveis.empty:
         st.info("Ainda não há cargas numéricas para plotar. Mostrando histórico textual.")
     else:
-        chart_df = plotaveis[["DataCaptura", "CargaNum"]].rename(
-            columns={"DataCaptura": "Data", "CargaNum": "Carga"}
+        chart_df = plotaveis[["DataExecucao", "CargaNum"]].rename(
+            columns={"DataExecucao": "Data", "CargaNum": "Carga"}
         )
         chart = (
             alt.Chart(chart_df)
@@ -112,14 +141,14 @@ def mostrar_evolucao(df_ex: pd.DataFrame, exercicio: str, sessao: str) -> None:
                     scale=alt.Scale(zero=False, padding=10),
                 ),
                 tooltip=[
-                    alt.Tooltip("Data:T", title="Data", format="%d/%m/%Y"),
+                    alt.Tooltip("Data:T", title="Data", format="%d/%m/%Y %H:%M"),
                     alt.Tooltip("Carga:Q", title="Carga (kg)"),
                 ],
             )
             .properties(height=360)
         )
         st.altair_chart(chart, use_container_width=True)
-        st.caption("Carga máxima por sessão (ignora séries com carga 0).")
+        st.caption("Carga máxima por execução (ignora séries com carga 0).")
 
         c1, c2, c3 = st.columns(3)
         c1.metric("Última", f"{plotaveis['CargaNum'].iloc[-1]:g} kg")
@@ -133,11 +162,11 @@ def mostrar_evolucao(df_ex: pd.DataFrame, exercicio: str, sessao: str) -> None:
 
     st.markdown("#### Histórico completo")
     cols_hist = [
-        c for c in ["DataCaptura", "Carga", "Repeticoes", "Series", "Intervalo", "Observacoes"]
+        c for c in ["DataExecucao", "Carga", "Repeticoes", "Series", "Intervalo", "Observacoes"]
         if c in dados.columns
     ]
     st.dataframe(
-        dados[cols_hist].rename(columns={"DataCaptura": "Data"}),
+        dados[cols_hist].rename(columns={"DataExecucao": "Data"}),
         hide_index=True,
         use_container_width=True,
     )
@@ -146,13 +175,15 @@ def mostrar_evolucao(df_ex: pd.DataFrame, exercicio: str, sessao: str) -> None:
 def main() -> None:
     st.title("💪 Evolução dos alunos")
 
-    df = carregar_historico()
-    if df.empty:
-        st.warning("Nenhum dado encontrado na aba HistoricoTreinos.")
+    df_treinos = carregar_treinos()
+    df_exec = carregar_execucoes()
+
+    if df_treinos.empty:
+        st.warning("Nenhum dado encontrado na aba Treinos.")
         return
 
     alunos = (
-        df[["CodigoCliente", "NomeCliente"]]
+        df_treinos[["CodigoCliente", "NomeCliente"]]
         .dropna()
         .drop_duplicates()
         .sort_values("NomeCliente")
@@ -164,19 +195,26 @@ def main() -> None:
     nome_sel = st.sidebar.selectbox("Aluno", list(nome_map.keys()))
     cod_sel = nome_map[nome_sel]
 
-    df_aluno = df[df["CodigoCliente"] == cod_sel]
-    if df_aluno.empty:
-        st.info("Aluno sem histórico.")
+    treino_atual = df_treinos[df_treinos["CodigoCliente"] == cod_sel]
+    if treino_atual.empty:
+        st.info("Aluno sem ficha de treino cadastrada.")
         return
 
-    ultima_data = df_aluno["DataCaptura"].max()
-    treino_atual = df_aluno[df_aluno["DataCaptura"] == ultima_data]
-
-    datas = sorted(df_aluno["DataCaptura"].dropna().unique())
-    st.caption(
-        f"Última captura: **{pd.Timestamp(ultima_data).date()}** · "
-        f"{len(datas)} captura(s) no histórico"
+    df_aluno_exec = (
+        df_exec[df_exec["CodigoCliente"] == cod_sel]
+        if not df_exec.empty
+        else pd.DataFrame()
     )
+
+    if not df_aluno_exec.empty:
+        ultima_exec = df_aluno_exec["DataExecucao"].max()
+        n_execs = df_aluno_exec[["TreinoId", "Sessao", "DataExecucao"]].drop_duplicates().shape[0]
+        st.caption(
+            f"Última execução: **{pd.Timestamp(ultima_exec).strftime('%d/%m/%Y %H:%M')}** · "
+            f"{n_execs} execução(ões) no histórico"
+        )
+    else:
+        st.caption("Sem execuções registradas ainda — o gráfico ficará vazio até a próxima sessão concluída.")
 
     col_treino, col_volume = st.columns([2, 1])
 
@@ -184,7 +222,7 @@ def main() -> None:
         st.subheader("Treino atual")
         sessoes = sorted(treino_atual["Sessao"].dropna().unique())
         if not sessoes:
-            st.info("Sem sessões registradas na captura mais recente.")
+            st.info("Sem sessões na ficha.")
         for sessao in sessoes:
             bloco = treino_atual[treino_atual["Sessao"] == sessao]
             st.markdown(f"#### Sessão {sessao}")
@@ -207,10 +245,13 @@ def main() -> None:
                     with c2:
                         key = f"evo_{sessao}_{idx}"
                         if st.button("📈 Evolução", key=key, use_container_width=True):
-                            df_ex = df_aluno[
-                                (df_aluno["Exercicio"] == ex["Exercicio"])
-                                & (df_aluno["Sessao"] == sessao)
-                            ]
+                            if df_aluno_exec.empty:
+                                df_ex = pd.DataFrame()
+                            else:
+                                df_ex = df_aluno_exec[
+                                    (df_aluno_exec["Exercicio"] == ex["Exercicio"])
+                                    & (df_aluno_exec["Sessao"] == sessao)
+                                ]
                             mostrar_evolucao(df_ex, ex["Exercicio"], sessao)
 
     with col_volume:
@@ -234,7 +275,8 @@ def main() -> None:
 
     with st.expander("🔄 Atualizar dados"):
         if st.button("Recarregar do Google Sheets"):
-            carregar_historico.clear()
+            carregar_treinos.clear()
+            carregar_execucoes.clear()
             st.rerun()
 
 

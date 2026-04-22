@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import json
 import os
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
@@ -142,6 +142,9 @@ class NextFitV2Client:
 
         `data_inicial` e `data_final` podem ser datetimes naive (assumidos como
         horário local do sistema) ou tz-aware. São convertidos pra UTC.
+
+        A API limita cada request a 3 meses — períodos maiores são divididos
+        automaticamente em janelas de 80 dias e concatenados.
         """
         fields = json.dumps([
             "Id", "Descricao", "Inativo", "NomeCliente",
@@ -149,29 +152,37 @@ class NextFitV2Client:
             "Data", "DddCliente",
         ])
         sort = json.dumps([{"direction": "DESC", "property": "Data"}])
-        di = self._fmt_utc(data_inicial, end_of_day=False)
-        df = self._fmt_utc(data_final, end_of_day=True)
 
+        # Divide em chunks <= 80 dias (API limita a 3 meses por request)
+        chunk_days = 80
         results: list[dict[str, Any]] = []
-        page = 1
-        while True:
-            params = {
-                "limit": self.page_size,
-                "page": page,
-                "fields": fields,
-                "includes": "[]",
-                "sort": sort,
-                "DataInicial": di,
-                "DataFinal": df,
-                "ExibirClientesAgregadores": "true",
-                "filter": "[]",
-            }
-            data = self._get("/api/v2/RelCliente/RecuperarPresencas", params)
-            content = data.get("Content") or []
-            results.extend(content)
-            if data.get("Last") or not content:
-                break
-            page += 1
+        chunk_inicio = data_inicial
+        while chunk_inicio < data_final:
+            chunk_fim = min(chunk_inicio + timedelta(days=chunk_days), data_final)
+            di = self._fmt_utc(chunk_inicio, end_of_day=False)
+            df = self._fmt_utc(chunk_fim, end_of_day=True)
+
+            page = 1
+            while True:
+                params = {
+                    "limit": self.page_size,
+                    "page": page,
+                    "fields": fields,
+                    "includes": "[]",
+                    "sort": sort,
+                    "DataInicial": di,
+                    "DataFinal": df,
+                    "ExibirClientesAgregadores": "true",
+                    "filter": "[]",
+                }
+                data = self._get("/api/v2/RelCliente/RecuperarPresencas", params)
+                content = data.get("Content") or []
+                results.extend(content)
+                if data.get("Last") or not content:
+                    break
+                page += 1
+
+            chunk_inicio = chunk_fim
         return results
 
     # --- Grupos Musculares ---
@@ -223,63 +234,85 @@ class NextFitV2Client:
         data = self._get("/api/Treino/RecuperarView", {"Codigo": treino_id})
         return data.get("Content") or {}
 
+    def _rows_from_detalhe(
+        self,
+        resumo: dict[str, Any],
+        detalhe: dict[str, Any],
+        grupos_map: dict[int, str],
+        data_captura: str,
+        sessao_executada: int | None = None,
+    ) -> list[dict[str, Any]]:
+        """Transforma um detalhe de treino em linhas achatadas (1 por exercício).
+
+        Quando `sessao_executada` é passado, só as linhas daquela sessão são
+        retornadas (usado na detecção de execução, pra registrar apenas a
+        sessão que foi realmente feita).
+        """
+        rows: list[dict[str, Any]] = []
+        treino_id = resumo["Id"]
+        treino_nome = detalhe.get("Nome") or ""
+        treino_obs = detalhe.get("Observacao") or ""
+        cliente_nome = (detalhe.get("Cliente") or {}).get("Nome") or resumo.get("NomeCliente") or ""
+        codigo_cliente = detalhe.get("CodigoCliente") or resumo.get("CodigoCliente")
+        professor = (detalhe.get("Usuario") or {}).get("Nome") or resumo.get("NomeUsuario") or ""
+        status = detalhe.get("Status")
+        freq_semanal = detalhe.get("FrequenciaSemanal")
+        data_criacao = detalhe.get("DataCriacao") or ""
+        data_alteracao = detalhe.get("DataAlteracao") or ""
+        qtde_utilizado = resumo.get("QtdeUtilizado", 0)
+
+        sessoes = detalhe.get("Sessoes") or []
+        for idx_sessao, sessao in enumerate(sessoes, 1):
+            if sessao_executada is not None and idx_sessao != sessao_executada:
+                continue
+            exercicios = sessao.get("Exercicios") or []
+            for ex in exercicios:
+                ex_info = ex.get("Exercicio") or {}
+                codigo_grupo = ex_info.get("CodigoGrupoExercicio")
+                grupo_nome = grupos_map.get(codigo_grupo, "") if codigo_grupo else ""
+                rows.append({
+                    "DataCaptura": data_captura,
+                    "CodigoCliente": codigo_cliente,
+                    "NomeCliente": cliente_nome,
+                    "Professor": professor,
+                    "TreinoId": treino_id,
+                    "TreinoNome": treino_nome,
+                    "TreinoObs": treino_obs,
+                    "Status": status,
+                    "FrequenciaSemanal": freq_semanal,
+                    "QtdeTreinosRealizados": qtde_utilizado,
+                    "DataCriacao": data_criacao,
+                    "DataAlteracao": data_alteracao,
+                    "Sessao": idx_sessao,
+                    "SessaoExecutada": sessao_executada if sessao_executada is not None else "",
+                    "OrdemExercicio": ex.get("Ordem"),
+                    "Exercicio": ex_info.get("Nome") or "",
+                    "GrupoMuscular": grupo_nome,
+                    "Series": ex.get("QtdeSeries"),
+                    "Repeticoes": ex.get("Repeticoes") or "",
+                    "Carga": ex.get("Carga") or "",
+                    "Intervalo": ex.get("Intervalo") or "",
+                    "Observacoes": ex.get("Observacoes") or "",
+                })
+        return rows
+
     def _build_treino_rows(
         self,
         resumos: list[dict[str, Any]],
         grupos_map: dict[int, str],
         data_captura: str,
     ) -> list[dict[str, Any]]:
-        """Constrói linhas achatadas (1 por exercício) a partir dos resumos de treinos."""
-        rows: list[dict[str, Any]] = []
+        """Constrói linhas achatadas (1 por exercício) — faz 1 fetch de detalhe por treino.
 
+        Quando você já tem o detalhe em memória (ex: detecção de execução),
+        use `_rows_from_detalhe` direto pra evitar double-fetch.
+        """
+        rows: list[dict[str, Any]] = []
         for resumo in resumos:
-            treino_id = resumo["Id"]
-            detalhe = self.detalhe_treino(treino_id)
+            detalhe = self.detalhe_treino(resumo["Id"])
             if not detalhe:
                 continue
-
-            treino_nome = detalhe.get("Nome") or ""
-            treino_obs = detalhe.get("Observacao") or ""
-            cliente_nome = (detalhe.get("Cliente") or {}).get("Nome") or resumo.get("NomeCliente") or ""
-            codigo_cliente = detalhe.get("CodigoCliente") or resumo.get("CodigoCliente")
-            professor = (detalhe.get("Usuario") or {}).get("Nome") or resumo.get("NomeUsuario") or ""
-            status = detalhe.get("Status")
-            freq_semanal = detalhe.get("FrequenciaSemanal")
-            data_criacao = detalhe.get("DataCriacao") or ""
-            data_alteracao = detalhe.get("DataAlteracao") or ""
-            qtde_utilizado = resumo.get("QtdeUtilizado", 0)
-
-            sessoes = detalhe.get("Sessoes") or []
-            for idx_sessao, sessao in enumerate(sessoes, 1):
-                exercicios = sessao.get("Exercicios") or []
-                for ex in exercicios:
-                    ex_info = ex.get("Exercicio") or {}
-                    codigo_grupo = ex_info.get("CodigoGrupoExercicio")
-                    grupo_nome = grupos_map.get(codigo_grupo, "") if codigo_grupo else ""
-                    rows.append({
-                        "DataCaptura": data_captura,
-                        "CodigoCliente": codigo_cliente,
-                        "NomeCliente": cliente_nome,
-                        "Professor": professor,
-                        "TreinoId": treino_id,
-                        "TreinoNome": treino_nome,
-                        "TreinoObs": treino_obs,
-                        "Status": status,
-                        "FrequenciaSemanal": freq_semanal,
-                        "QtdeTreinosRealizados": qtde_utilizado,
-                        "DataCriacao": data_criacao,
-                        "DataAlteracao": data_alteracao,
-                        "Sessao": idx_sessao,
-                        "OrdemExercicio": ex.get("Ordem"),
-                        "Exercicio": ex_info.get("Nome") or "",
-                        "GrupoMuscular": grupo_nome,
-                        "Series": ex.get("QtdeSeries"),
-                        "Repeticoes": ex.get("Repeticoes") or "",
-                        "Carga": ex.get("Carga") or "",
-                        "Intervalo": ex.get("Intervalo") or "",
-                        "Observacoes": ex.get("Observacoes") or "",
-                    })
-
+            rows.extend(self._rows_from_detalhe(resumo, detalhe, grupos_map, data_captura))
         return rows
 
     def treinos_completos(
@@ -295,22 +328,91 @@ class NextFitV2Client:
         data_captura = datetime.now(tz=timezone.utc).strftime("%Y-%m-%d")
         return self._build_treino_rows(resumos, grupos_map, data_captura)
 
-    def historico_treinos(
+    # --- Detecção de execução (sync incremental) ---
+
+    def detectar_execucoes(
         self,
-        datas_existentes: set[str] | None = None,
+        status_anterior: dict[int, dict[str, Any]],
         clientes_ativos: set[int] | None = None,
-    ) -> list[dict[str, Any]]:
-        """Retorna dados de treino para o histórico (acumulativo).
+    ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+        """Compara estado atual da listagem com o snapshot anterior e detecta
+        treinos que foram executados (QtdeUtilizado aumentou).
 
-        Se `datas_existentes` for fornecido e a data de hoje já estiver nele,
-        pula para evitar duplicatas.
-        Se `clientes_ativos` for fornecido, retorna apenas de clientes ativos.
+        Pra cada execução detectada:
+        - Puxa o detalhe do treino (pra pegar DataAlteracao real + cargas)
+        - Gera linhas apenas da sessão que foi concluída (sessao_atual_anterior)
+        - DataCaptura = data da DataAlteracao (YYYY-MM-DD)
+
+        Retorna `(linhas_novas, novo_status)`:
+        - `linhas_novas`: linhas pra inserir em HistoricoExecucoes
+        - `novo_status`: lista de dicts pra reescrever FichasStatus
+
+        Quando `status_anterior` é vazio (primeira execução), inicializa o
+        snapshot sem gerar linhas — não dá pra afirmar que houve execução.
         """
-        data_hoje = datetime.now(tz=timezone.utc).strftime("%Y-%m-%d")
-
-        if datas_existentes and data_hoje in datas_existentes:
-            return []
-
-        grupos_map = self.grupos_exercicio()
         resumos = self.listar_treinos(clientes_ativos=clientes_ativos)
-        return self._build_treino_rows(resumos, grupos_map, data_hoje)
+        primeira_rodada = not status_anterior
+        grupos_map: dict[int, str] | None = None  # lazy — só busca se achar execução
+
+        linhas_novas: list[dict[str, Any]] = []
+        novo_status: list[dict[str, Any]] = []
+        snapshot_em = datetime.now(tz=timezone.utc).isoformat()
+
+        for resumo in resumos:
+            tid = resumo["Id"]
+            qtde_atual = int(resumo.get("QtdeUtilizado") or 0)
+            anterior = status_anterior.get(tid)
+            qtde_ant = int((anterior or {}).get("QtdeUtilizado") or 0)
+
+            houve_execucao = (anterior is not None) and (qtde_atual > qtde_ant)
+
+            if houve_execucao or primeira_rodada or anterior is None:
+                # Puxa detalhe (pra DataAlteracao e — em execução — cargas reais)
+                detalhe = self.detalhe_treino(tid)
+                if not detalhe:
+                    continue
+
+                sessao_atual = detalhe.get("SessaoAtual")
+                data_alteracao = detalhe.get("DataAlteracao") or ""
+
+                if houve_execucao:
+                    if grupos_map is None:
+                        grupos_map = self.grupos_exercicio()
+                    sessao_feita = (anterior or {}).get("SessaoAtual") or sessao_atual
+                    try:
+                        sessao_feita = int(sessao_feita)
+                    except (TypeError, ValueError):
+                        sessao_feita = None
+                    data_captura = data_alteracao[:10] if data_alteracao else \
+                        datetime.now(tz=timezone.utc).strftime("%Y-%m-%d")
+                    rows = self._rows_from_detalhe(
+                        resumo, detalhe, grupos_map, data_captura,
+                        sessao_executada=sessao_feita,
+                    )
+                    # Enriquece com timestamp exato da execução
+                    for row in rows:
+                        row["TimestampExecucao"] = data_alteracao
+                    linhas_novas.extend(rows)
+
+                novo_status.append({
+                    "TreinoId": tid,
+                    "CodigoCliente": resumo.get("CodigoCliente"),
+                    "NomeCliente": resumo.get("NomeCliente"),
+                    "QtdeUtilizado": qtde_atual,
+                    "SessaoAtual": sessao_atual,
+                    "DataAlteracao": data_alteracao,
+                    "SnapshotEm": snapshot_em,
+                })
+            else:
+                # Sem execução — mantém o status anterior (só atualiza SnapshotEm)
+                novo_status.append({
+                    "TreinoId": tid,
+                    "CodigoCliente": resumo.get("CodigoCliente"),
+                    "NomeCliente": resumo.get("NomeCliente"),
+                    "QtdeUtilizado": qtde_atual,
+                    "SessaoAtual": anterior.get("SessaoAtual") if anterior else None,
+                    "DataAlteracao": anterior.get("DataAlteracao") if anterior else "",
+                    "SnapshotEm": snapshot_em,
+                })
+
+        return linhas_novas, novo_status

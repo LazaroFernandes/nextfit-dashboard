@@ -30,3 +30,6 @@ Thumbs.db
 # Saídas locais
 *.xlsx
 *.log
+
+# Dumps/snapshots locais de debug dos scripts
+scripts/_*.json

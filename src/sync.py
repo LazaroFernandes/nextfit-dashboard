@@ -36,8 +36,11 @@ RESOURCES: dict[str, str] = {
 V2_RESOURCES: dict[str, str] = {
     "presencas": "Presencas",
     "treinos": "Treinos",
-    "historico_treinos": "HistoricoTreinos",
+    "execucoes": "HistoricoExecucoes",
 }
+
+# Aba auxiliar usada pelo fluxo de detecção de execução (snapshot por treino)
+FICHAS_STATUS_TAB = "FichasStatus"
 
 
 def _parse_iso(s: str) -> datetime | None:
@@ -287,7 +290,7 @@ def main() -> int:
 
             # --- Buscar clientes com plano ativo (para filtrar treinos) ---
             clientes_ativos: set[int] | None = None
-            if "treinos" in selected_v2 or "historico_treinos" in selected_v2:
+            if "treinos" in selected_v2 or "execucoes" in selected_v2:
                 print("[info] buscando clientes com plano ativo...", flush=True)
                 try:
                     contratos = nf.contratos_cliente()
@@ -324,43 +327,70 @@ def main() -> int:
                         elapsed = time.time() - t0
                         print(f"  [ok] {fetched} exercicios de treino lidos, {written} escritos ({elapsed:.1f}s)")
 
-            # --- Histórico de Treinos (acumulativo) ---
-            if "historico_treinos" in selected_v2:
-                tab_name = selected_v2["historico_treinos"]
-                print(f"[sync] historico_treinos (somente planos ativos) -> aba '{tab_name}' ...", flush=True)
+            # --- Detecção de execuções (incremental, baseado em QtdeUtilizado) ---
+            if "execucoes" in selected_v2:
+                tab_name = selected_v2["execucoes"]
+                print(
+                    f"[sync] execucoes (delta de QtdeUtilizado) -> aba '{tab_name}' ...",
+                    flush=True,
+                )
                 t0 = time.time()
 
-                # Lê datas já capturadas para evitar duplicatas
-                datas_existentes: set[str] = set()
+                # Lê snapshot anterior dos treinos
                 try:
-                    datas_col = sheets.read_tab_column(tab_name, 0)  # coluna DataCaptura
-                    datas_existentes = set(datas_col)
-                except Exception:
-                    pass
+                    status_rows = sheets.read_tab_all(FICHAS_STATUS_TAB)
+                except Exception as e:
+                    print(f"  [aviso] nao foi possivel ler '{FICHAS_STATUS_TAB}': {e}", file=sys.stderr)
+                    status_rows = []
+
+                status_anterior: dict[int, dict] = {}
+                for r in status_rows:
+                    try:
+                        status_anterior[int(r["TreinoId"])] = r
+                    except (KeyError, TypeError, ValueError):
+                        continue
+
+                if not status_anterior:
+                    print(
+                        "  [info] FichasStatus vazia — inicializando snapshot "
+                        "(nenhuma execução será registrada nesta rodada)"
+                    )
 
                 try:
-                    items = nf_v2.historico_treinos(
-                        datas_existentes=datas_existentes,
+                    linhas_novas, novo_status = nf_v2.detectar_execucoes(
+                        status_anterior=status_anterior,
                         clientes_ativos=clientes_ativos,
                     )
                 except TokenExpiredError as e:
                     print(f"  [falha] {e}", file=sys.stderr)
-                    items = []
+                    linhas_novas, novo_status = [], []
                 except Exception as e:
-                    print(f"  [falha] erro ao buscar historico: {e}", file=sys.stderr)
-                    items = []
+                    print(f"  [falha] erro ao detectar execucoes: {e}", file=sys.stderr)
+                    linhas_novas, novo_status = [], []
 
-                if items:
-                    fetched = len(items)
+                # Grava linhas novas em HistoricoExecucoes (append)
+                if linhas_novas:
                     try:
-                        written = sheets.append_tab(tab_name, items)
+                        written = sheets.append_tab(tab_name, linhas_novas)
                     except Exception as e:
                         print(f"  [falha] erro ao escrever '{tab_name}': {e}", file=sys.stderr)
                     else:
                         elapsed = time.time() - t0
-                        print(f"  [ok] {fetched} registros de historico, {written} adicionados ({elapsed:.1f}s)")
+                        print(
+                            f"  [ok] {len(linhas_novas)} linhas de execucao detectadas, "
+                            f"{written} adicionadas ({elapsed:.1f}s)"
+                        )
                 else:
-                    print("  [ok] historico ja capturado hoje, nada a adicionar")
+                    elapsed = time.time() - t0
+                    print(f"  [ok] nenhuma execucao nova detectada ({elapsed:.1f}s)")
+
+                # Atualiza FichasStatus (overwrite)
+                if novo_status:
+                    try:
+                        sheets.write_tab(FICHAS_STATUS_TAB, novo_status)
+                        print(f"  [ok] '{FICHAS_STATUS_TAB}' atualizado ({len(novo_status)} fichas)")
+                    except Exception as e:
+                        print(f"  [falha] erro ao escrever '{FICHAS_STATUS_TAB}': {e}", file=sys.stderr)
 
     print(f"[fim] sincronizacao concluida em {time.time() - total_start:.1f}s")
     return 0

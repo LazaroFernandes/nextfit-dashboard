@@ -145,3 +145,11 @@ class SheetsClient:
             return []
         values = ws.col_values(col_index + 1)  # gspread usa 1-indexed
         return values[1:]  # pula o cabeçalho
+
+    def read_tab_all(self, tab_name: str) -> list[dict[str, Any]]:
+        """Lê a aba inteira como list[dict]. Retorna lista vazia se a aba não existir."""
+        try:
+            ws = self.spreadsheet.worksheet(tab_name)
+        except gspread.WorksheetNotFound:
+            return []
+        return ws.get_all_records()
