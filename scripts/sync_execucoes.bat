@@ -9,5 +9,5 @@ cd /d "%SCRIPT_DIR%.."
 
 echo. >> scripts\sync.log
 echo ========== %date% %time% ========== >> scripts\sync.log
-".venv\Scripts\python.exe" -X utf8 src\sync.py execucoes >> scripts\sync.log 2>&1
+".venv\Scripts\python.exe" -X utf8 src\sync.py treinos execucoes >> scripts\sync.log 2>&1
 endlocal
