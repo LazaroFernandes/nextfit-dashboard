@@ -51,7 +51,8 @@ def _build_sheets_client() -> SheetsClient:
         sheet_id=sheet_id,
     )
 
-SERIES_POR_EXERCICIO = 3
+SERIE_DEFAULT = 3  # fallback quando Series=4 + Repeticoes=0 (convenção da academia)
+GRUPOS_IGNORAR_VOLUME = {"OBSERVAÇÕES"}  # PERIODIZAÇÃO e afins não contam como exercício
 
 st.set_page_config(
     page_title="Evolução dos alunos",
@@ -93,6 +94,24 @@ def carregar_treinos() -> pd.DataFrame:
         return df
     df["DataCaptura"] = pd.to_datetime(df.get("DataCaptura"), errors="coerce")
     return df
+
+
+def _volume_series(series, repeticoes) -> int:
+    """Retorna o número de séries reais pra contar no volume.
+
+    Regra: se o professor preencheu Repeticoes com algum número > 0, o campo
+    Series é confiável e usado direto. Se Repeticoes=0 (vazio) e Series=4,
+    assume a convenção da academia de 3 séries reais (a 4ª é aquecimento/desconsiderada).
+    """
+    try:
+        series_n = int(series) if series not in (None, "") else 0
+    except (ValueError, TypeError):
+        series_n = 0
+    reps_str = str(repeticoes if repeticoes is not None else "")
+    tem_reps = bool(re.search(r"[1-9]", reps_str))  # qualquer digito > 0
+    if series_n == 4 and not tem_reps:
+        return SERIE_DEFAULT
+    return series_n
 
 
 def _parse_carga(valor: str) -> float | None:
@@ -247,7 +266,8 @@ def main() -> None:
                         if partes:
                             st.caption(" · ".join(str(p) for p in partes))
                     with c2:
-                        key = f"evo_{sessao}_{idx}"
+                        # Key inclui cod_sel + sessao + idx global = sempre unica
+                        key = f"evo_{cod_sel}_{sessao}_{idx}"
                         if st.button("📈 Evolução", key=key, use_container_width=True):
                             if df_aluno_exec.empty:
                                 df_ex = pd.DataFrame()
@@ -260,19 +280,28 @@ def main() -> None:
 
     with col_volume:
         st.subheader("Volume por grupo muscular")
-        st.caption(f"Séries totais ({SERIES_POR_EXERCICIO} por exercício)")
-        volume = (
-            treino_atual[treino_atual["GrupoMuscular"].astype(bool)]
-            .groupby("GrupoMuscular")
-            .size()
-            .reset_index(name="Exercícios")
+        st.caption(
+            "Séries reais: usa o campo Series se Repetições preenchido; "
+            f"cai pra {SERIE_DEFAULT} quando Series=4 e Repetições=0"
         )
-        if volume.empty:
+        exercicios_reais = treino_atual[
+            treino_atual["GrupoMuscular"].astype(bool)
+            & ~treino_atual["GrupoMuscular"].isin(GRUPOS_IGNORAR_VOLUME)
+        ].copy()
+        if exercicios_reais.empty:
             st.info("Sem grupos musculares mapeados.")
         else:
-            volume["Séries"] = volume["Exercícios"] * SERIES_POR_EXERCICIO
-            volume = volume.sort_values("Séries", ascending=False)
-            volume = volume.rename(columns={"GrupoMuscular": "Grupo"})
+            exercicios_reais["SeriesReais"] = exercicios_reais.apply(
+                lambda r: _volume_series(r.get("Series"), r.get("Repeticoes")),
+                axis=1,
+            )
+            volume = (
+                exercicios_reais.groupby("GrupoMuscular")
+                .agg(Exercícios=("Exercicio", "count"), Séries=("SeriesReais", "sum"))
+                .reset_index()
+                .sort_values("Séries", ascending=False)
+                .rename(columns={"GrupoMuscular": "Grupo"})
+            )
             total_series = int(volume["Séries"].sum())
             st.metric("Volume total", f"{total_series} séries")
             st.dataframe(volume, hide_index=True, use_container_width=True)
