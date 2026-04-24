@@ -224,7 +224,11 @@ def main() -> None:
         if not sessoes:
             st.info("Sem sessões na ficha.")
         for sessao in sessoes:
-            bloco = treino_atual[treino_atual["Sessao"] == sessao]
+            bloco = treino_atual[treino_atual["Sessao"] == sessao].copy()
+            # Ordena pela ordem definida na ficha (OrdemExercicio)
+            if "OrdemExercicio" in bloco.columns:
+                bloco["_ordem"] = pd.to_numeric(bloco["OrdemExercicio"], errors="coerce")
+                bloco = bloco.sort_values("_ordem", kind="stable", na_position="last")
             st.markdown(f"#### Sessão {sessao}")
             for idx, ex in bloco.iterrows():
                 with st.container(border=True):
