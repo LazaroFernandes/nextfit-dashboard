@@ -31,5 +31,11 @@ Thumbs.db
 *.xlsx
 *.log
 
-# Dumps/snapshots locais de debug dos scripts
+# Dumps/snapshots/análises locais de debug dos scripts (prefixo _)
 scripts/_*.json
+scripts/_*.csv
+scripts/_*.txt
+scripts/_*.py
+
+# Relatórios locais soltos
+retorno_semana.txt

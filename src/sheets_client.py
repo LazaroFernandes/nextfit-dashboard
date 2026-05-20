@@ -28,6 +28,61 @@ def _flatten(value: Any) -> Any:
     return value
 
 
+def _coerce_pt_br(raw: str) -> Any:
+    """Converte string crua de celula respeitando formato brasileiro.
+
+    Regra:
+      "228,14" -> 228.14 (float)
+      "1.234,56" -> 1234.56 (float, BR com separador de milhar)
+      "300" -> 300 (int)
+      "300.0" -> 300.0 (float, en-US)
+      "true"/"false"/"VERDADEIRO"/"FALSO" -> bool
+      "" -> ""
+      qualquer outra coisa -> string original
+    """
+    if not isinstance(raw, str):
+        return raw
+    s = raw.strip()
+    if not s:
+        return ""
+
+    # Booleanos
+    low = s.lower()
+    if low in ("verdadeiro", "true"):
+        return True
+    if low in ("falso", "false"):
+        return False
+
+    # Tenta numero brasileiro: tem virgula decimal
+    if "," in s and not s.endswith(","):
+        # remove pontos de milhar (so se padrao BR: pontos antes da virgula)
+        if s.count(",") == 1:
+            partes = s.split(",")
+            inteiro = partes[0].replace(".", "")
+            decimal = partes[1]
+            if (inteiro.lstrip("-").isdigit() or inteiro in ("", "-")) and decimal.isdigit():
+                try:
+                    return float(f"{inteiro or 0}.{decimal}")
+                except ValueError:
+                    pass
+
+    # Numero inteiro puro
+    if s.lstrip("-").isdigit():
+        try:
+            return int(s)
+        except ValueError:
+            pass
+
+    # Numero com ponto decimal en-US
+    if s.replace(".", "", 1).lstrip("-").isdigit() and s.count(".") == 1:
+        try:
+            return float(s)
+        except ValueError:
+            pass
+
+    return raw
+
+
 def _rows_from_items(items: list[dict[str, Any]]) -> tuple[list[str], list[list[Any]]]:
     """Extrai cabeçalho (união de todas as chaves) e as linhas."""
     if not items:
@@ -58,6 +113,18 @@ class SheetsClient:
         else:
             raise ValueError("Informe credentials_file ou credentials_info")
         self.gc = gspread.authorize(creds)
+        self.spreadsheet = self.gc.open_by_key(sheet_id) if sheet_id else None
+
+    def create_spreadsheet(self, title: str, share_with_email: str | None = None) -> str:
+        """Cria uma nova planilha (de posse da service account) e retorna o ID.
+        Se share_with_email for informado, compartilha com permissao writer."""
+        sh = self.gc.create(title)
+        if share_with_email:
+            sh.share(share_with_email, perm_type="user", role="writer", notify=False)
+        self.spreadsheet = sh
+        return sh.id
+
+    def open_by_id(self, sheet_id: str) -> None:
         self.spreadsheet = self.gc.open_by_key(sheet_id)
 
     def _get_or_create_worksheet(self, title: str, rows: int, cols: int) -> gspread.Worksheet:
@@ -153,3 +220,30 @@ class SheetsClient:
         except gspread.WorksheetNotFound:
             return []
         return ws.get_all_records()
+
+    def read_tab_pt_br(self, tab_name: str) -> list[dict[str, Any]]:
+        """Como read_tab_all, mas respeita formato brasileiro de numeros decimais.
+
+        Diferente de get_all_records (que usa parsing en-US e quebra '228,14' -> 22814),
+        esta versao tenta converter cada celula assim:
+          - se for numero inteiro puro: int
+          - se for numero com virgula decimal (pt-BR): float
+          - se for numero com ponto decimal (en-US): float
+          - caso contrario: string original
+        """
+        try:
+            ws = self.spreadsheet.worksheet(tab_name)
+        except gspread.WorksheetNotFound:
+            return []
+        valores = ws.get_all_values()
+        if not valores:
+            return []
+        header = valores[0]
+        out: list[dict[str, Any]] = []
+        for row in valores[1:]:
+            obj: dict[str, Any] = {}
+            for i, col in enumerate(header):
+                raw = row[i] if i < len(row) else ""
+                obj[col] = _coerce_pt_br(raw)
+            out.append(obj)
+        return out
