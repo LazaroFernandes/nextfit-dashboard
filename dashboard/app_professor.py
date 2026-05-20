@@ -16,7 +16,9 @@ from pathlib import Path
 import streamlit as st
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
+DASHBOARD_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(PROJECT_ROOT / "src"))
+sys.path.insert(0, str(DASHBOARD_DIR))  # permite 'import app_admin'
 
 from controle_professores.abrir_semana import abrir_semana  # noqa: E402
 from controle_professores.alunos import set_turno  # noqa: E402
@@ -32,24 +34,30 @@ from controle_professores.semana import (  # noqa: E402
 )
 
 
-st.set_page_config(
-    page_title="Registro Semanal",
-    page_icon="📋",
-    layout="centered",  # mobile-first
-)
+# Decide o modo ANTES do set_page_config, lendo o estado de login (que persiste
+# entre reruns). Admin = entrou com a senha-mestra APP_PASSWORD (_prof_login vazio).
+# Ler st.session_state antes do set_page_config e permitido pelo Streamlit.
+_modo_admin = bool(st.session_state.get("_auth_ok")) and not st.session_state.get("_prof_login")
 
-# CSS pra deixar inputs/cards mais friendly no mobile
-st.markdown(
-    """
+if _modo_admin:
+    st.set_page_config(page_title="Admin · Controle", page_icon="📊", layout="wide")
+else:
+    st.set_page_config(page_title="Registro Semanal", page_icon="📋", layout="centered")
+
+
+_PROF_CSS = """
     <style>
         .block-container { padding-top: 1rem; padding-bottom: 4rem; max-width: 720px; }
         .stButton > button { height: 44px; font-weight: 600; }
         .stTextArea textarea { min-height: 80px; }
         div[data-testid="stExpander"] summary { font-size: 1rem; }
     </style>
-    """,
-    unsafe_allow_html=True,
-)
+    """
+
+
+def _inject_prof_css() -> None:
+    """CSS mobile-first do app do professor (nao se aplica ao modo admin)."""
+    st.markdown(_PROF_CSS, unsafe_allow_html=True)
 
 # ----------------------------- Carregamento -----------------------------------
 
@@ -175,10 +183,28 @@ def _autenticado() -> bool:
     return False
 
 
+def _render_admin() -> None:
+    """Dashboard administrativo (quem entrou com a senha-mestra)."""
+    import app_admin  # import tardio: so carrega quando e admin
+
+    col_a, col_b = st.columns([5, 1])
+    col_a.caption("🔑 Acesso administrador")
+    if col_b.button("Sair", use_container_width=True):
+        _logout()
+    app_admin.main()
+
+
 def main() -> None:
     if not _autenticado():
         return
 
+    # Senha-mestra (admin) -> dashboard administrativo.
+    # Exige _auth_ok (senha-mestra), senao o modo dev sem senha cairia aqui.
+    if st.session_state.get("_auth_ok") and not st.session_state.get("_prof_login"):
+        _render_admin()
+        return
+
+    _inject_prof_css()
     st.title("📋 Registro Semanal")
 
     alunos = carregar_alunos()
