@@ -13,6 +13,7 @@ Conceitos:
 """
 from __future__ import annotations
 
+import unicodedata
 from collections import defaultdict
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
@@ -41,6 +42,7 @@ class BaseDados:
     registros: list[dict[str, Any]]
     presencas: list[dict[str, Any]]
     contratos: list[dict[str, Any]]
+    contratos_base: list[dict[str, Any]]
 
 
 def carregar_tudo() -> BaseDados:
@@ -52,6 +54,8 @@ def carregar_tudo() -> BaseDados:
         presencas=sc_nf.read_tab_all("Presencas"),
         # Contratos usa leitura pt-BR pra preservar valores decimais (ex: "228,14")
         contratos=sc_nf.read_tab_pt_br("ContratosCliente"),
+        # ContratosBase guarda a descricao do plano (usada pra agrupar por modalidade)
+        contratos_base=sc_nf.read_tab_all("ContratosBase"),
     )
 
 
@@ -429,6 +433,167 @@ def retencao_comparativa(
         "receita_inicial": round(total_receita_inicial, 2),
         "alunos_perdidos": total_ativos_m1 - total_retidos_status,
         "linhas_prof": linhas,
+    }
+
+
+# ------------------ Retencao por MODALIDADE M1 -> M2 --------------------------
+
+def _norm_txt(s: str) -> str:
+    s = unicodedata.normalize("NFD", str(s or ""))
+    return "".join(c for c in s if unicodedata.category(c) != "Mn").upper().strip()
+
+
+def categorizar_modalidade(descricao: str) -> str:
+    """Agrupa a descricao do plano (ContratosBase) numa modalidade ampla.
+    A ordem importa: o primeiro termo que casar vence (ex.: 'Hyrox livre' -> HYROX).
+    """
+    d = _norm_txt(descricao)
+    if not d:
+        return "(sem plano)"
+    if "HYROX" in d:
+        return "HYROX"
+    if "FATBURN" in d:
+        return "FATBURN"
+    if "KIDS" in d:
+        return "KIDS"
+    if "QUADRA" in d:
+        return "QUADRA"
+    if "PERSONAL" in d:
+        return "PERSONAL"
+    if "ACESSORIA" in d or "ASSESSORIA" in d:
+        return "ASSESSORIA"
+    if "CONSULTORIA" in d:
+        return "CONSULTORIA"
+    if "PROJETO" in d:
+        return "PROJETO"
+    if "FUNCIONARIO" in d:
+        return "FUNCIONÁRIOS"
+    if "LIVRE" in d:
+        return "LIVRE"
+    return "Outros"
+
+
+def _desc_por_contrato_base(contratos_base: list[dict]) -> dict[int, str]:
+    out: dict[int, str] = {}
+    for cb in contratos_base:
+        bid = _to_int(cb.get("id"))
+        if bid is not None:
+            out[bid] = str(cb.get("descricao") or "").strip()
+    return out
+
+
+def _modalidade_de_cliente_no_mes(
+    ano: int, mes: int, contratos: list[dict],
+    base_desc: dict[int, str], agrupar: str,
+) -> dict[int, str]:
+    """Atribui UMA modalidade a cada cliente ativo no mes: a do contrato ativo
+    de maior mensalidade (mesma regra do valor_mensal). `agrupar` = 'categoria'
+    (agrupa por categoria ampla) ou 'plano' (usa a descricao crua do plano).
+    """
+    inicio_mes, fim_mes = periodo_mes(ano, mes)
+    melhor: dict[int, tuple[float, str]] = {}
+    for ct in contratos:
+        cid = _to_int(ct.get("codigoCliente"))
+        if cid is None:
+            continue
+        di = _parse_date(ct.get("dataInicio"))
+        if di is None:
+            continue
+        df = _fim_efetivo(ct, ate=fim_mes)
+        if not (di <= fim_mes and df >= inicio_mes):
+            continue
+        cb_id = _to_int(ct.get("codigoContratoBase"))
+        desc = base_desc.get(cb_id, "") if cb_id is not None else ""
+        mod = categorizar_modalidade(desc) if agrupar == "categoria" else (desc or "(sem plano)")
+        mensal = _mensalidade_de_contrato(ct)
+        if cid not in melhor or mensal > melhor[cid][0]:
+            melhor[cid] = (mensal, mod)
+    return {cid: mod for cid, (_m, mod) in melhor.items()}
+
+
+@dataclass
+class LinhaModalidade:
+    modalidade: str
+    ativos_m1: int
+    retidos_status: int
+    taxa_status: float
+    receita_inicial: float
+    receita_preservada: float
+    perdidos: list[dict[str, Any]]
+
+
+def retencao_por_modalidade(
+    ano_m1: int, mes_m1: int,
+    ano_m2: int, mes_m2: int,
+    base: BaseDados | None = None,
+    agrupar: str = "categoria",
+) -> dict[str, Any]:
+    """Retencao M1 -> M2 agrupada por modalidade (categoria do plano ou plano cru).
+
+    Cada cliente ativo em M1 e contado UMA vez, na modalidade do seu contrato de
+    maior valor em M1. Retido = continua ativo (status) em M2.
+    """
+    base = base or carregar_tudo()
+    base_desc = _desc_por_contrato_base(base.contratos_base)
+
+    ativos_m1 = clientes_ativos_no_mes(ano_m1, mes_m1, base.contratos)
+    ativos_m2 = clientes_ativos_no_mes(ano_m2, mes_m2, base.contratos)
+    valores_m1 = valor_mensal_por_cliente_no_mes(ano_m1, mes_m1, base.contratos)
+    valores_m2 = valor_mensal_por_cliente_no_mes(ano_m2, mes_m2, base.contratos)
+    mod_por_cliente = _modalidade_de_cliente_no_mes(
+        ano_m1, mes_m1, base.contratos, base_desc, agrupar,
+    )
+
+    nome_por_cliente: dict[int, str] = {}
+    for a in base.alunos:
+        cid = _to_int(a.get("ClienteId"))
+        if cid is not None:
+            nome_por_cliente[cid] = str(a.get("Nome") or "")
+
+    cohorts: dict[str, list[int]] = defaultdict(list)
+    for cid in ativos_m1:
+        cohorts[mod_por_cliente.get(cid, "(sem plano)")].append(cid)
+
+    linhas: list[LinhaModalidade] = []
+    for mod, cohort in cohorts.items():
+        ativos = len(cohort)
+        retidos = [c for c in cohort if c in ativos_m2]
+        receita_inicial = sum(valores_m1.get(c, 0.0) for c in cohort)
+        receita_preservada = sum(valores_m2.get(c, 0.0) for c in retidos)
+        perdidos = sorted(
+            [
+                {
+                    "ClienteId": c,
+                    "Nome": nome_por_cliente.get(c, f"#{c}"),
+                    "ValorM1": valores_m1.get(c, 0.0),
+                }
+                for c in cohort if c not in ativos_m2
+            ],
+            key=lambda x: x["Nome"],
+        )
+        linhas.append(LinhaModalidade(
+            modalidade=mod,
+            ativos_m1=ativos,
+            retidos_status=len(retidos),
+            taxa_status=(len(retidos) / ativos) if ativos else 0.0,
+            receita_inicial=round(receita_inicial, 2),
+            receita_preservada=round(receita_preservada, 2),
+            perdidos=perdidos,
+        ))
+
+    linhas.sort(key=lambda l: (-l.ativos_m1, l.modalidade))
+
+    total_ativos = sum(l.ativos_m1 for l in linhas)
+    total_retidos = sum(l.retidos_status for l in linhas)
+    return {
+        "label_m1": label_mes(ano_m1, mes_m1),
+        "label_m2": label_mes(ano_m2, mes_m2),
+        "total_ativos_m1": total_ativos,
+        "total_retidos_status": total_retidos,
+        "taxa_status_total": (total_retidos / total_ativos) if total_ativos else 0.0,
+        "receita_inicial": round(sum(l.receita_inicial for l in linhas), 2),
+        "receita_preservada": round(sum(l.receita_preservada for l in linhas), 2),
+        "linhas": linhas,
     }
 
 

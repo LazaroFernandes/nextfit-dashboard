@@ -34,6 +34,7 @@ from controle_professores.retencao import (  # noqa: E402
     proximo_mes,
     queda_frequencia,
     retencao_comparativa,
+    retencao_por_modalidade,
 )
 from controle_professores.treinos import (  # noqa: E402
     carregar_execucoes,
@@ -438,6 +439,91 @@ def render_retencao(base: BaseDados) -> None:
         st.markdown("<hr style='margin: 4px 0; border: none; border-top: 1px solid #f3f4f6;'>", unsafe_allow_html=True)
 
 
+def render_retencao_modalidade(base: BaseDados) -> None:
+    st.markdown("## 📦 Retenção por modalidade")
+    st.caption(
+        "Mesma lógica da retenção mensal, agrupada pela modalidade do aluno no mês A "
+        "(cada aluno entra uma vez, no plano de maior valor)."
+    )
+
+    opcoes = _gerar_opcoes_meses(meses_pra_tras=14)
+    label_to_tuple = {label: (ano, mes) for ano, mes, label in opcoes}
+    labels = [o[2] for o in opcoes]
+    label_default_m1 = opcoes[1][2] if len(opcoes) > 1 else opcoes[0][2]
+    label_default_m2 = opcoes[0][2]
+
+    c1, c2, c3 = st.columns([3, 3, 2])
+    with c1:
+        sel_m1 = st.selectbox("De (mês A)", labels, index=labels.index(label_default_m1), key="mod_m1")
+    with c2:
+        sel_m2 = st.selectbox("Para (mês B)", labels, index=labels.index(label_default_m2), key="mod_m2")
+    with c3:
+        agrupar_label = st.radio("Agrupar por", ["Categoria", "Plano detalhado"], key="mod_agrupar")
+    agrupar = "categoria" if agrupar_label == "Categoria" else "plano"
+
+    ano_m1, mes_m1 = label_to_tuple[sel_m1]
+    ano_m2, mes_m2 = label_to_tuple[sel_m2]
+    if (ano_m1, mes_m1) >= (ano_m2, mes_m2):
+        st.warning("Escolha um mês A anterior ao mês B pra fazer a comparação.")
+        return
+
+    dados = retencao_por_modalidade(ano_m1, mes_m1, ano_m2, mes_m2, base=base, agrupar=agrupar)
+    if dados["total_ativos_m1"] == 0:
+        st.info(f"Sem alunos ativos detectados em {sel_m1}.")
+        return
+
+    perdidos_tot = dados["total_ativos_m1"] - dados["total_retidos_status"]
+    cols = st.columns(3)
+    with cols[0]:
+        st.markdown(_kpi_card(
+            "Retenção geral",
+            f"{dados['taxa_status_total']*100:.1f}%",
+            f"{dados['total_retidos_status']} de {dados['total_ativos_m1']} mantidos",
+        ), unsafe_allow_html=True)
+    with cols[1]:
+        st.markdown(_kpi_card(
+            "Receita preservada",
+            _fmt_brl(dados["receita_preservada"]),
+            f"de {_fmt_brl(dados['receita_inicial'])} inicial",
+        ), unsafe_allow_html=True)
+    with cols[2]:
+        st.markdown(_kpi_card(
+            "Alunos perdidos",
+            f"{perdidos_tot}",
+            f"{sel_m1} → {sel_m2}",
+            "kpi-sub-negative" if perdidos_tot else "kpi-sub-positive",
+        ), unsafe_allow_html=True)
+
+    st.markdown(f"### Por modalidade · {dados['label_m1']} → {dados['label_m2']}")
+    linhas = dados["linhas"]
+    if not linhas:
+        st.info("Sem modalidades detectadas.")
+        return
+
+    head = st.columns([3, 1.4, 1.2, 1.6])
+    head[0].markdown("**Modalidade**")
+    head[1].markdown("**Ativos → Retidos**")
+    head[2].markdown("**Taxa**")
+    head[3].markdown("**Receita preservada**")
+    st.markdown("<hr style='margin: 4px 0; border: none; border-top: 1px solid #e1e4e8;'>", unsafe_allow_html=True)
+
+    for l in linhas:
+        cl = st.columns([3, 1.4, 1.2, 1.6])
+        cl[0].markdown(f"**{l.modalidade}**")
+        cl[1].markdown(f"{l.ativos_m1} → {l.retidos_status}")
+        cl[2].markdown(_badge(l.taxa_status), unsafe_allow_html=True)
+        cl[3].markdown(_fmt_brl(l.receita_preservada))
+
+        if l.perdidos:
+            with st.expander(f"❌ {len(l.perdidos)} perdido(s) em {l.modalidade}", expanded=False):
+                df = pd.DataFrame([
+                    {"Aluno": p["Nome"], f"Mensalidade em {dados['label_m1']}": _fmt_brl(p["ValorM1"])}
+                    for p in l.perdidos
+                ])
+                st.dataframe(df, hide_index=True, use_container_width=True)
+        st.markdown("<hr style='margin: 4px 0; border: none; border-top: 1px solid #f3f4f6;'>", unsafe_allow_html=True)
+
+
 # =================== FERRAMENTAS OPERACIONAIS =====================
 
 def render_acompanhamento(base: BaseDados) -> None:
@@ -618,6 +704,10 @@ def main() -> None:
         st.rerun()
 
     render_retencao(base)
+
+    st.divider()
+
+    render_retencao_modalidade(base)
 
     st.divider()
 
