@@ -5,6 +5,7 @@
 credentials/*.json
 !credentials/README.md
 .streamlit/secrets.toml
+.streamlit/secrets.cloud.toml
 
 # Python
 __pycache__/
