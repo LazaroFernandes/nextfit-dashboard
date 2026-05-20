@@ -473,7 +473,7 @@ def render_retencao_modalidade(base: BaseDados) -> None:
         return
 
     perdidos_tot = dados["total_ativos_m1"] - dados["total_retidos_status"]
-    cols = st.columns(3)
+    cols = st.columns(4)
     with cols[0]:
         st.markdown(_kpi_card(
             "Retenção geral",
@@ -485,8 +485,16 @@ def render_retencao_modalidade(base: BaseDados) -> None:
             "Receita preservada",
             _fmt_brl(dados["receita_preservada"]),
             f"de {_fmt_brl(dados['receita_inicial'])} inicial",
+            "kpi-sub-positive",
         ), unsafe_allow_html=True)
     with cols[2]:
+        st.markdown(_kpi_card(
+            "Receita perdida",
+            _fmt_brl(dados["receita_perdida"]),
+            f"mensalidade de quem saiu ({sel_m1})",
+            "kpi-sub-negative" if dados["receita_perdida"] else "kpi-sub-positive",
+        ), unsafe_allow_html=True)
+    with cols[3]:
         st.markdown(_kpi_card(
             "Alunos perdidos",
             f"{perdidos_tot}",
@@ -500,19 +508,22 @@ def render_retencao_modalidade(base: BaseDados) -> None:
         st.info("Sem modalidades detectadas.")
         return
 
-    head = st.columns([3, 1.4, 1.2, 1.6])
+    larguras = [2.6, 1.3, 1.0, 1.5, 1.5]
+    head = st.columns(larguras)
     head[0].markdown("**Modalidade**")
     head[1].markdown("**Ativos → Retidos**")
     head[2].markdown("**Taxa**")
     head[3].markdown("**Receita preservada**")
+    head[4].markdown("**Receita perdida**")
     st.markdown("<hr style='margin: 4px 0; border: none; border-top: 1px solid #e1e4e8;'>", unsafe_allow_html=True)
 
     for l in linhas:
-        cl = st.columns([3, 1.4, 1.2, 1.6])
+        cl = st.columns(larguras)
         cl[0].markdown(f"**{l.modalidade}**")
         cl[1].markdown(f"{l.ativos_m1} → {l.retidos_status}")
         cl[2].markdown(_badge(l.taxa_status), unsafe_allow_html=True)
         cl[3].markdown(_fmt_brl(l.receita_preservada))
+        cl[4].markdown(f"<span style='color:#dc2626;'>{_fmt_brl(l.receita_perdida)}</span>", unsafe_allow_html=True)
 
         if l.perdidos:
             with st.expander(f"❌ {len(l.perdidos)} perdido(s) em {l.modalidade}", expanded=False):

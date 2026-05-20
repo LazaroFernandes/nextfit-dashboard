@@ -519,6 +519,7 @@ class LinhaModalidade:
     taxa_status: float
     receita_inicial: float
     receita_preservada: float
+    receita_perdida: float
     perdidos: list[dict[str, Any]]
 
 
@@ -560,6 +561,8 @@ def retencao_por_modalidade(
         retidos = [c for c in cohort if c in ativos_m2]
         receita_inicial = sum(valores_m1.get(c, 0.0) for c in cohort)
         receita_preservada = sum(valores_m2.get(c, 0.0) for c in retidos)
+        # Receita perdida = mensalidade (em M1) de quem saiu (nao retido em M2)
+        receita_perdida = sum(valores_m1.get(c, 0.0) for c in cohort if c not in ativos_m2)
         perdidos = sorted(
             [
                 {
@@ -578,6 +581,7 @@ def retencao_por_modalidade(
             taxa_status=(len(retidos) / ativos) if ativos else 0.0,
             receita_inicial=round(receita_inicial, 2),
             receita_preservada=round(receita_preservada, 2),
+            receita_perdida=round(receita_perdida, 2),
             perdidos=perdidos,
         ))
 
@@ -593,6 +597,7 @@ def retencao_por_modalidade(
         "taxa_status_total": (total_retidos / total_ativos) if total_ativos else 0.0,
         "receita_inicial": round(sum(l.receita_inicial for l in linhas), 2),
         "receita_preservada": round(sum(l.receita_preservada for l in linhas), 2),
+        "receita_perdida": round(sum(l.receita_perdida for l in linhas), 2),
         "linhas": linhas,
     }
 
