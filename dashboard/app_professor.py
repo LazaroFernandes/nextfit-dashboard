@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import os
 import sys
-from datetime import date, datetime, timedelta
+from datetime import date, timedelta
 from pathlib import Path
 
 import streamlit as st
@@ -22,10 +22,6 @@ from controle_professores.abrir_semana import abrir_semana  # noqa: E402
 from controle_professores.alunos import set_turno  # noqa: E402
 from controle_professores.client import open_controle  # noqa: E402
 from controle_professores.config import TAB_ALUNOS, TAB_REGISTRO  # noqa: E402
-from controle_professores.presencas import (  # noqa: E402
-    carregar_presencas,
-    presencas_por_cliente_no_periodo,
-)
 from controle_professores.registro import upsert_em_lote  # noqa: E402
 from controle_professores.semana import (  # noqa: E402
     fmt_iso,
@@ -67,13 +63,6 @@ def carregar_alunos() -> list[dict]:
 def carregar_registros() -> list[dict]:
     sc = open_controle()
     return sc.read_tab_all(TAB_REGISTRO)
-
-
-@st.cache_data(ttl=300, show_spinner="Carregando presencas reais...")
-def carregar_pres_periodo(inicio_iso: str, fim_iso: str) -> dict[int, int]:
-    inicio = datetime.strptime(inicio_iso, "%Y-%m-%d").date()
-    fim = datetime.strptime(fim_iso, "%Y-%m-%d").date()
-    return presencas_por_cliente_no_periodo(inicio, fim)
 
 
 def _professores_disponiveis(alunos: list[dict]) -> list[str]:
@@ -250,7 +239,6 @@ def main() -> None:
 
     registros = carregar_registros()
     reg_idx = _registros_da_semana(registros, prof, sem_ini)
-    pres_real = carregar_pres_periodo(fmt_iso(sem_ini), fmt_iso(sem_fim))
     alunos_prof = _alunos_do_prof(alunos, prof)
 
     # Se a semana nao foi aberta para esse prof, mostra botao
@@ -321,7 +309,6 @@ def main() -> None:
         r = reg_idx.get(cid, {})
         nome = a.get("Nome", "")
         turno = (a.get("Turno") or "").strip()
-        freq_real = pres_real.get(cid, 0)
         preenchido = _esta_preenchido(r)
 
         if filtro == "Pendentes" and preenchido:
@@ -341,10 +328,9 @@ def main() -> None:
             partes_resumo.append(desempenho_atual)
         resumo_inline = " · ".join(partes_resumo) if partes_resumo else ""
         turno_tag = f" · {turno}" if turno else ""
-        real_tag = f" · Real: {freq_real}"
 
-        # Header: check + nome + (turno) + (real) + (resumo se preenchido)
-        header = f"{check}  **{nome}**{turno_tag}{real_tag}"
+        # Header: check + nome + (turno) + (resumo se preenchido)
+        header = f"{check}  **{nome}**{turno_tag}"
         if resumo_inline:
             header += f"  —  _{resumo_inline}_"
 
