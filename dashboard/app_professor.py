@@ -19,6 +19,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT_ROOT / "src"))
 
 from controle_professores.abrir_semana import abrir_semana  # noqa: E402
+from controle_professores.alunos import set_turno  # noqa: E402
 from controle_professores.client import open_controle  # noqa: E402
 from controle_professores.config import TAB_ALUNOS, TAB_REGISTRO  # noqa: E402
 from controle_professores.presencas import (  # noqa: E402
@@ -116,6 +117,7 @@ def _registros_da_semana(
 # ----------------------------- UI ---------------------------------------------
 
 DESEMPENHOS = ["", "Muito bom", "Bom", "Regular", "Não está vindo", "Férias"]
+TURNOS = ["", "MANHÃ", "TARDE", "NOITE"]
 
 
 def _norm(s: str) -> str:
@@ -347,6 +349,17 @@ def main() -> None:
             header += f"  —  _{resumo_inline}_"
 
         with st.expander(header, expanded=False):
+            # Turno: atributo do aluno (vale pra todas as semanas)
+            turno_opcoes = list(TURNOS)
+            if turno and turno not in turno_opcoes:
+                turno_opcoes.append(turno)
+            turno_input = st.selectbox(
+                "Turno",
+                options=turno_opcoes,
+                index=turno_opcoes.index(turno) if turno in turno_opcoes else 0,
+                key=f"turno_{cid}",
+                help="Fica salvo para todas as semanas.",
+            )
             freq_input = st.text_input(
                 "Frequência",
                 value=freq_atual,
@@ -366,11 +379,13 @@ def main() -> None:
                 placeholder="Como está sendo o treino, dificuldades, dores, evolução...",
             )
 
-            mudou = (
+            mudou_registro = (
                 freq_input != freq_atual
                 or desempenho_input != desempenho_atual
                 or relato_input != relato_atual
             )
+            mudou_turno = (turno_input or "") != (turno or "")
+            mudou = mudou_registro or mudou_turno
             if st.button(
                 "💾 Salvar" if mudou else "✓ Sem alterações",
                 key=f"save_{cid}",
@@ -379,16 +394,20 @@ def main() -> None:
                 disabled=not mudou,
             ):
                 with st.spinner("Salvando..."):
-                    upsert_em_lote([{
-                        "ClienteId": cid,
-                        "Nome": nome,
-                        "Professor": prof,
-                        "SemanaInicio": fmt_iso(sem_ini),
-                        "SemanaFim": fmt_iso(sem_fim),
-                        "Frequencia": freq_input,
-                        "Desempenho": desempenho_input,
-                        "Relato": relato_input,
-                    }])
+                    if mudou_registro:
+                        upsert_em_lote([{
+                            "ClienteId": cid,
+                            "Nome": nome,
+                            "Professor": prof,
+                            "SemanaInicio": fmt_iso(sem_ini),
+                            "SemanaFim": fmt_iso(sem_fim),
+                            "Frequencia": freq_input,
+                            "Desempenho": desempenho_input,
+                            "Relato": relato_input,
+                        }])
+                    if mudou_turno:
+                        set_turno(cid, turno_input)
+                        carregar_alunos.clear()
                 carregar_registros.clear()
                 st.toast(f"✅ {nome} salvo", icon="💾")
                 st.rerun()

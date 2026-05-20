@@ -45,11 +45,12 @@ def _is_ativo(cliente: dict, contratos_ativos_por_cliente: set) -> bool:
 
 def _inferir_turno(modalidades: list[str]) -> str:
     """Heuristica: olha o nome das modalidades/contratos pra inferir turno.
-    Devolve MANHA/TARDE/NOITE ou string vazia se nao deu.
+    So e usada como sugestao inicial quando o professor ainda nao preencheu.
+    Devolve MANHÃ/TARDE/NOITE ou string vazia se nao deu.
     """
     texto = " ".join(modalidades).upper()
     if "MANH" in texto:
-        return "MANHA"
+        return "MANHÃ"
     if "TARDE" in texto:
         return "TARDE"
     if "NOITE" in texto or "NOTURN" in texto:
@@ -83,6 +84,19 @@ def main() -> int:
 
     nome_por_usuario = {u.get("id"): (u.get("nome") or "").strip() for u in usuarios}
 
+    # Preserva o Turno ja preenchido na aba (edicoes do professor no app).
+    # A heuristica so vale como sugestao inicial pra quem ainda nao tem turno.
+    sc = open_controle()
+    turnos_existentes: dict[int, str] = {}
+    for a in sc.read_tab_all(TAB_ALUNOS):
+        try:
+            cid_e = int(a.get("ClienteId"))
+        except (TypeError, ValueError):
+            continue
+        t = str(a.get("Turno") or "").strip()
+        if t:
+            turnos_existentes[cid_e] = t
+
     # Mapeia cliente -> lista de modalidades dos contratos ativos
     contratos_ativos_por_cliente: set = set()
     modalidades_por_cliente: dict[int, list[str]] = {}
@@ -110,7 +124,8 @@ def main() -> int:
         cod_prof = cliente_sub.get("codigoUsuarioProfessor")
         prof = nome_por_usuario.get(cod_prof, "") if cod_prof else ""
         ativo = _is_ativo(c, contratos_ativos_por_cliente)
-        turno = _inferir_turno(modalidades_por_cliente.get(cod, []))
+        # Turno preenchido pelo professor manda; senao, sugestao da heuristica.
+        turno = turnos_existentes.get(cod) or _inferir_turno(modalidades_por_cliente.get(cod, []))
         rows.append({
             "ClienteId": cod,
             "Nome": nome,
@@ -124,8 +139,8 @@ def main() -> int:
     rows.sort(key=lambda r: (r["Status"] != "ATIVO", r["Nome"].lower()))
 
     print(f"[sync_alunos] gravando {len(rows)} linhas em '{TAB_ALUNOS}'...")
-    sc = open_controle()
-    # Usa write_tab pra reescrever inteira (idempotente)
+    # Usa write_tab pra reescrever inteira (idempotente). Reaproveita o `sc`
+    # aberto acima (que leu os turnos existentes).
     written = sc.write_tab(TAB_ALUNOS, rows)
     ativos = sum(1 for r in rows if r["Status"] == "ATIVO")
     com_prof = sum(1 for r in rows if r["Status"] == "ATIVO" and r["Professor"])
