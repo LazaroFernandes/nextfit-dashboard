@@ -118,8 +118,12 @@ def _registros_da_semana(
 DESEMPENHOS = ["", "Muito bom", "Bom", "Regular", "Não está vindo", "Férias"]
 
 
-def _senha_esperada() -> str:
-    """Le APP_PASSWORD de st.secrets (prod) ou do ambiente (dev). Vazio = sem senha."""
+def _norm(s: str) -> str:
+    return str(s or "").strip().casefold()
+
+
+def _senha_master() -> str:
+    """APP_PASSWORD: senha-mestra opcional que libera escolher qualquer professor."""
     try:
         v = st.secrets.get("APP_PASSWORD")
         if v:
@@ -129,10 +133,34 @@ def _senha_esperada() -> str:
     return os.environ.get("APP_PASSWORD", "").strip()
 
 
+def _senhas_professores() -> dict[str, str]:
+    """Mapa {nome_do_professor: senha} vindo da secao [senhas_professores] dos Secrets."""
+    try:
+        sec = st.secrets.get("senhas_professores")
+        if sec:
+            return {str(k): str(v) for k, v in dict(sec).items()}
+    except Exception:
+        pass
+    return {}
+
+
+def _logout() -> None:
+    for k in ("_auth_ok", "_prof_login", "prof"):
+        st.session_state.pop(k, None)
+    st.rerun()
+
+
 def _autenticado() -> bool:
-    """Gate de senha. Se nenhuma senha estiver configurada, libera (dev local)."""
-    esperada = _senha_esperada()
-    if not esperada:
+    """Gate de senha.
+
+    - [senhas_professores] nos Secrets: cada professor tem sua senha; ao entrar
+      fica travado nos proprios alunos (st.session_state._prof_login).
+    - APP_PASSWORD (opcional): senha-mestra que libera escolher qualquer professor.
+    - Nenhuma configurada: acesso livre (dev local).
+    """
+    senhas = _senhas_professores()
+    master = _senha_master()
+    if not senhas and not master:
         return True
     if st.session_state.get("_auth_ok"):
         return True
@@ -141,11 +169,18 @@ def _autenticado() -> bool:
     st.caption("Acesso restrito aos professores.")
     senha = st.text_input("Senha", type="password", key="_senha_input")
     if st.button("Entrar", use_container_width=True):
-        if senha == esperada:
+        # 1) senha individual de um professor -> trava nele
+        for nome, pw in senhas.items():
+            if pw and senha == pw:
+                st.session_state._auth_ok = True
+                st.session_state._prof_login = nome
+                st.rerun()
+        # 2) senha-mestra -> acesso a todos (sem trava)
+        if master and senha == master:
             st.session_state._auth_ok = True
+            st.session_state._prof_login = None
             st.rerun()
-        else:
-            st.error("Senha incorreta.")
+        st.error("Senha incorreta.")
     return False
 
 
@@ -168,15 +203,28 @@ def main() -> None:
         st.error("Nenhum professor encontrado entre os alunos ativos.")
         return
 
-    # Persiste prof e semana entre interacoes
-    if "prof" not in st.session_state:
-        st.session_state.prof = profs[0]
+    # Persiste a semana entre interacoes
     if "semana_ini" not in st.session_state:
         st.session_state.semana_ini = semana_atual()[0]
 
-    # Linha 1: professor
-    prof_idx = profs.index(st.session_state.prof) if st.session_state.prof in profs else 0
-    prof = st.selectbox("Professor", profs, index=prof_idx, key="prof")
+    # Linha 1: professor — travado quando entrou com senha individual
+    prof_login = st.session_state.get("_prof_login")
+    if prof_login:
+        prof = next((p for p in profs if _norm(p) == _norm(prof_login)), None)
+        if prof is None:
+            st.info(f"👤 **{prof_login}** — você não tem alunos ativos no momento.")
+            if st.button("Sair"):
+                _logout()
+            return
+        col_p, col_s = st.columns([4, 1])
+        col_p.markdown(f"👤 Professor: **{prof}**")
+        if col_s.button("Sair", use_container_width=True):
+            _logout()
+    else:
+        if st.session_state.get("prof") not in profs:
+            st.session_state.prof = profs[0]
+        prof_idx = profs.index(st.session_state.prof)
+        prof = st.selectbox("Professor", profs, index=prof_idx, key="prof")
 
     # Linha 2: semana — botoes ◀ ▶ + dropdown de semanas pertos
     col_l, col_m, col_r = st.columns([1, 4, 1])
