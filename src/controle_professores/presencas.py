@@ -20,9 +20,15 @@ def _parse_data(s: str) -> datetime | None:
 
 
 def carregar_presencas() -> list[dict[str, Any]]:
-    """Le a aba 'Presencas' (NextFit sync). Retorna [] se nao existir."""
+    """Le a aba 'Presencas' (sincronizada da NextFit) + 'PresencasManuais'
+    (lancamentos manuais do gestor pra casos onde a catraca falhou) e devolve
+    a uniao. A aba PresencasManuais nao e tocada pelo sync, entao seus
+    lancamentos sobrevivem entre execucoes.
+    """
     sc = open_nextfit_sync()
-    return sc.read_tab_all("Presencas")
+    automaticas = sc.read_tab_all("Presencas")
+    manuais = sc.read_tab_all("PresencasManuais")  # [] se a aba nao existir
+    return automaticas + manuais
 
 
 def presencas_por_cliente_por_semana(
