@@ -335,6 +335,8 @@ def main() -> None:
         r = reg_idx.get(cid, {})
         nome = a.get("Nome", "")
         turno = (a.get("Turno") or "").strip()
+        plano = (a.get("Plano") or "").strip()
+        modalidade = (a.get("Modalidade") or "").strip()
         preenchido = _esta_preenchido(r)
 
         if filtro == "Pendentes" and preenchido:
@@ -354,13 +356,17 @@ def main() -> None:
             partes_resumo.append(desempenho_atual)
         resumo_inline = " · ".join(partes_resumo) if partes_resumo else ""
         turno_tag = f" · {turno}" if turno else ""
+        modalidade_tag = f" · {modalidade}" if modalidade else ""
 
         # Header: check + nome + (turno) + (resumo se preenchido)
-        header = f"{check}  **{nome}**{turno_tag}"
+        header = f"{check}  **{nome}**{turno_tag}{modalidade_tag}"
         if resumo_inline:
             header += f"  —  _{resumo_inline}_"
 
         with st.expander(header, expanded=False):
+            if plano or modalidade:
+                st.caption("Plano: " + (plano or "-") + (" | Modalidade: " + modalidade if modalidade else ""))
+
             # Turno: atributo do aluno (vale pra todas as semanas)
             turno_opcoes = list(TURNOS)
             if turno and turno not in turno_opcoes:

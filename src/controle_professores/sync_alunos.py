@@ -17,6 +17,7 @@ from __future__ import annotations
 import os
 import sys
 import time
+import unicodedata
 from datetime import datetime
 from pathlib import Path
 
@@ -28,6 +29,63 @@ sys.path.insert(0, str(PROJECT_ROOT / "src"))
 from controle_professores.client import open_controle  # noqa: E402
 from controle_professores.config import HEADERS_ALUNOS, TAB_ALUNOS  # noqa: E402
 from nextfit_client import NextFitClient  # noqa: E402
+
+
+PLANO_MODALIDADE = {
+    "ACESSORIA FIXO": "MUSCULAÇÃO",
+    "1X BLACK": "HYROX",
+    "CONSULTORIA LIVRE": "MUSCULAÇÃO",
+    "2X BLACK": "HYROX",
+    "CONSULTORIA LIVRE 2026": "MUSCULAÇÃO",
+    "KIDS SEGUNDA": "HYROX KIDS",
+    "ACESSORIA FIXO 2026": "MUSCULAÇÃO",
+    "3X BLACK": "HYROX",
+    "HYROX 1 X NA SEMANA": "HYROX",
+    "FUNCIONÁRIOS": "FUNCIONÁRIOS",
+    "HX CT": "HYROX",
+    "HYROX 2X NA SEMANA": "HYROX",
+    "PERSONAL CRIS 2X": "MUSCULAÇÃO",
+    "PERSONAL CRIS 3X": "MUSCULAÇÃO",
+    "KIDS QUARTA": "HYROX KIDS",
+    "KIDS SEG E QUARTA": "HYROX",
+    "FULL BLACK": "HYROX",
+    "HYROX TODOS OS DIAS": "HYROX",
+    "PERSONAL CRIS 1X": "MUSCULAÇÃO",
+    "PERSONAL EQUIPE 3X": "MUSCULAÇÃO",
+    "PERSONAL ITALO 1X": "MUSCULAÇÃO",
+    "PERSONAL ITALO 5X": "MUSCULAÇÃO",
+    "PLANO DE 6 MESES ACESSORIA": "MUSCULAÇÃO",
+    "PLANO SEMESTRAL LIVRE": "MUSCULAÇÃO",
+    "TRIMESTRAL LIVRE CT": "MUSCULAÇÃO",
+}
+
+
+def _norm(s: str) -> str:
+    s = unicodedata.normalize("NFD", s or "")
+    s = "".join(c for c in s if unicodedata.category(c) != "Mn")
+    return " ".join(s.upper().split())
+
+
+PLANO_MODALIDADE_NORM = {_norm(k): v for k, v in PLANO_MODALIDADE.items()}
+
+
+def _modalidade_de_plano(plano: str) -> str:
+    return PLANO_MODALIDADE_NORM.get(_norm(plano), "")
+
+
+def _join_unicos(valores: list[str]) -> str:
+    out: list[str] = []
+    seen: set[str] = set()
+    for valor in valores:
+        v = str(valor or "").strip()
+        if not v:
+            continue
+        k = _norm(v)
+        if k in seen:
+            continue
+        seen.add(k)
+        out.append(v)
+    return "; ".join(out)
 
 
 def _is_ativo(cliente: dict, contratos_ativos_por_cliente: set) -> bool:
@@ -77,12 +135,14 @@ def main() -> int:
     clientes = nf.clientes()
     usuarios = nf.usuarios()
     contratos = nf.contratos_cliente()
+    contratos_base = nf.contratos_base()
     print(
         f"  clientes={len(clientes)} usuarios={len(usuarios)} "
         f"contratos={len(contratos)} ({time.time()-t0:.1f}s)"
     )
 
     nome_por_usuario = {u.get("id"): (u.get("nome") or "").strip() for u in usuarios}
+    plano_por_base = {b.get("id"): (b.get("descricao") or "").strip() for b in contratos_base}
 
     # Preserva o Turno ja preenchido na aba (edicoes do professor no app).
     # A heuristica so vale como sugestao inicial pra quem ainda nao tem turno.
@@ -97,8 +157,9 @@ def main() -> int:
         if t:
             turnos_existentes[cid_e] = t
 
-    # Mapeia cliente -> lista de modalidades dos contratos ativos
+    # Mapeia cliente -> planos e modalidades dos contratos ativos.
     contratos_ativos_por_cliente: set = set()
+    planos_por_cliente: dict[int, list[str]] = {}
     modalidades_por_cliente: dict[int, list[str]] = {}
     for ct in contratos:
         if str(ct.get("status")).strip() != "Ativo":
@@ -107,9 +168,16 @@ def main() -> int:
         if cod is None:
             continue
         contratos_ativos_por_cliente.add(cod)
-        modalidades_por_cliente.setdefault(cod, []).append(
-            (ct.get("descricaoContratoBase") or ct.get("descricaoModalidade") or "")
+        plano = (
+            plano_por_base.get(ct.get("codigoContratoBase"))
+            or (ct.get("descricaoContratoBase") or "")
+            or (ct.get("descricaoModalidade") or "")
         )
+        if plano:
+            planos_por_cliente.setdefault(cod, []).append(plano)
+            modalidade = _modalidade_de_plano(plano)
+            if modalidade:
+                modalidades_por_cliente.setdefault(cod, []).append(modalidade)
 
     agora_iso = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     rows: list[dict] = []
@@ -125,12 +193,15 @@ def main() -> int:
         prof = nome_por_usuario.get(cod_prof, "") if cod_prof else ""
         ativo = _is_ativo(c, contratos_ativos_por_cliente)
         # Turno preenchido pelo professor manda; senao, sugestao da heuristica.
-        turno = turnos_existentes.get(cod) or _inferir_turno(modalidades_por_cliente.get(cod, []))
+        planos = planos_por_cliente.get(cod, [])
+        turno = turnos_existentes.get(cod) or _inferir_turno(planos)
         rows.append({
             "ClienteId": cod,
             "Nome": nome,
             "Turno": turno,
             "Professor": prof,
+            "Plano": _join_unicos(planos),
+            "Modalidade": _join_unicos(modalidades_por_cliente.get(cod, [])),
             "Status": "ATIVO" if ativo else "INATIVO",
             "AtualizadoEm": agora_iso,
         })

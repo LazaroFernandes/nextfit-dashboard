@@ -12,6 +12,8 @@ HEADERS_ALUNOS = [
     "Nome",
     "Turno",
     "Professor",
+    "Plano",
+    "Modalidade",
     "Status",          # ATIVO | INATIVO
     "AtualizadoEm",
 ]
