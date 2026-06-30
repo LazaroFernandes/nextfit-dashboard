@@ -178,7 +178,7 @@ def upsert_em_lote(
         key = (cid, sem)
         if key in existentes:
             r_idx = existentes[key]
-            for campo in ("Frequencia", "Desempenho", "Relato"):
+            for campo in ("Nome", "Professor", "SemanaFim", "Frequencia", "Desempenho", "Relato"):
                 if campo in it:
                     col_letter = gspread.utils.rowcol_to_a1(r_idx, idx[campo] + 1)
                     body.append({

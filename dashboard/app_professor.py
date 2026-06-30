@@ -95,19 +95,26 @@ def _alunos_do_prof(alunos: list[dict], prof: str) -> list[dict]:
 def _registros_da_semana(
     registros: list[dict], prof: str, semana_ini: date,
 ) -> dict[int, dict]:
-    """Indexa registros (ClienteId -> linha) da semana e do professor."""
+    """Indexa registros (ClienteId -> linha) da semana.
+
+    A linha semanal pode ter sido aberta antes de uma troca de professor. Por
+    isso a busca principal e por aluno+semana; se houver duplicata, preferimos
+    a linha que ja esta no professor atual.
+    """
     chave = fmt_iso(semana_ini)
     out: dict[int, dict] = {}
     for r in registros:
-        if str(r.get("Professor") or "").strip() != prof:
-            continue
         if str(r.get("SemanaInicio") or "").strip() != chave:
             continue
         try:
             cid = int(r["ClienteId"])
         except (KeyError, TypeError, ValueError):
             continue
+        if cid in out and str(out[cid].get("Professor") or "").strip() == prof:
+            continue
         out[cid] = r
+        if str(r.get("Professor") or "").strip() == prof:
+            out[cid] = r
     return out
 
 
@@ -268,7 +275,16 @@ def main() -> None:
     alunos_prof = _alunos_do_prof(alunos, prof)
 
     # Se a semana nao foi aberta para esse prof, mostra botao
-    sem_registros = len(reg_idx) == 0
+    def _cid_aluno(a: dict) -> int | None:
+        try:
+            return int(a["ClienteId"])
+        except (KeyError, TypeError, ValueError):
+            return None
+
+    sem_registros = not any(
+        (cid := _cid_aluno(a)) is not None and cid in reg_idx
+        for a in alunos_prof
+    )
     semana_eh_atual = sem_ini == semana_atual()[0]
     if sem_registros:
         st.info(
@@ -350,6 +366,8 @@ def main() -> None:
         freq_atual = _str_campo(r, "Frequencia")
         desempenho_atual = _str_campo(r, "Desempenho")
         relato_atual = _str_campo(r, "Relato")
+        semana_key = fmt_iso(sem_ini)
+        registro_key = f"{semana_key}_{cid}"
         if freq_atual:
             partes_resumo.append(f"Freq: {freq_atual}")
         if desempenho_atual:
@@ -381,19 +399,19 @@ def main() -> None:
             freq_input = st.text_input(
                 "Frequência",
                 value=freq_atual,
-                key=f"freq_{cid}",
+                key=f"freq_{registro_key}",
                 help="Ex.: 3, 5, 'Não está vindo', 'Férias'",
             )
             desempenho_input = st.selectbox(
                 "Desempenho",
                 options=DESEMPENHOS,
                 index=DESEMPENHOS.index(desempenho_atual) if desempenho_atual in DESEMPENHOS else 0,
-                key=f"des_{cid}",
+                key=f"des_{registro_key}",
             )
             relato_input = st.text_area(
                 "Relato",
                 value=relato_atual,
-                key=f"rel_{cid}",
+                key=f"rel_{registro_key}",
                 placeholder="Como está sendo o treino, dificuldades, dores, evolução...",
             )
 
@@ -406,29 +424,35 @@ def main() -> None:
             mudou = mudou_registro or mudou_turno
             if st.button(
                 "💾 Salvar" if mudou else "✓ Sem alterações",
-                key=f"save_{cid}",
+                key=f"save_{registro_key}",
                 type="primary" if mudou else "secondary",
                 use_container_width=True,
                 disabled=not mudou,
             ):
-                with st.spinner("Salvando..."):
-                    if mudou_registro:
-                        upsert_em_lote([{
-                            "ClienteId": cid,
-                            "Nome": nome,
-                            "Professor": prof,
-                            "SemanaInicio": fmt_iso(sem_ini),
-                            "SemanaFim": fmt_iso(sem_fim),
-                            "Frequencia": freq_input,
-                            "Desempenho": desempenho_input,
-                            "Relato": relato_input,
-                        }])
-                    if mudou_turno:
-                        set_turno(cid, turno_input)
-                        carregar_alunos.clear()
-                carregar_registros.clear()
-                st.toast(f"✅ {nome} salvo", icon="💾")
-                st.rerun()
+                try:
+                    with st.spinner("Salvando..."):
+                        if mudou_registro:
+                            upsert_em_lote([{
+                                "ClienteId": cid,
+                                "Nome": nome,
+                                "Professor": prof,
+                                "SemanaInicio": fmt_iso(sem_ini),
+                                "SemanaFim": fmt_iso(sem_fim),
+                                "Frequencia": freq_input,
+                                "Desempenho": desempenho_input,
+                                "Relato": relato_input,
+                            }])
+                        if mudou_turno:
+                            turno_status = set_turno(cid, turno_input)
+                            if turno_status != "updated":
+                                st.warning("Registro salvo, mas o turno nao foi atualizado na aba Alunos.")
+                            carregar_alunos.clear()
+                    carregar_registros.clear()
+                    st.toast(f"✅ {nome} salvo", icon="💾")
+                    st.rerun()
+                except Exception as exc:
+                    st.error(f"Nao consegui salvar {nome}. Tente novamente em alguns segundos.")
+                    st.caption(f"Detalhe tecnico: {exc}")
 
 
 if __name__ == "__main__":
