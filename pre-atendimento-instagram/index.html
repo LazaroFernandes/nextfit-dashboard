@@ -7,7 +7,6 @@
   <title>CT Ítalo Vieira - Link in Bio</title>
 
   <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700;800&family=Inter:wght@400;500&family=JetBrains+Mono:wght@600&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <script id="tailwind-config">
     tailwind.config = {
@@ -134,11 +133,6 @@
     .diagonal-accent {
       clip-path: polygon(0 0, 100% 0, 100% 100%, 0 85%);
       background: linear-gradient(135deg, #1b1c1c 50%, #ffd700 50%);
-    }
-
-    .material-symbols-outlined {
-      font-variation-settings: "FILL" 0, "wght" 300, "GRAD" 0, "opsz" 24;
-      vertical-align: middle;
     }
 
     .social-logo {
@@ -276,8 +270,30 @@
       transform: scale(0.95);
     }
 
-    .chat-close .material-symbols-outlined {
-      font-size: 24px;
+    .fallback-icon {
+      display: block;
+      font-size: 2rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .fallback-chevron {
+      font-size: 1.9rem;
+      font-weight: 300;
+      line-height: 1;
+    }
+
+    .fallback-product-icon {
+      display: block;
+      font-size: 2.4rem;
+      line-height: 1;
+      opacity: 0.22;
+    }
+
+    .fallback-close {
+      display: block;
+      font-size: 1.7rem;
+      line-height: 1;
     }
 
     .progress-area {
@@ -575,7 +591,7 @@
   <header class="w-full max-w-[640px] flex flex-col items-center justify-center pt-10 pb-6 px-gutter bg-surface">
     <div class="relative mb-6">
       <div class="w-24 h-24 rounded-full border-4 border-surface-container-lowest shadow-sm flex items-center justify-center bg-white overflow-hidden p-1">
-        <img class="brand-logo" src="../imgs/logoct.jpg" alt="Logo CT Ítalo Vieira">
+        <img class="brand-logo" src="imgs/logoct.jpg" alt="Logo CT Ítalo Vieira">
       </div>
     </div>
 
@@ -586,16 +602,16 @@
 
     <div class="flex gap-4 mt-8">
       <a aria-label="Instagram" class="w-12 h-12 rounded-full bg-white flex items-center justify-center border border-outline-variant hover:border-primary transition-colors duration-200" href="https://www.instagram.com/" target="_blank" rel="noopener">
-        <img class="social-logo" src="../imgs/instagram-brands-solid-full.svg" alt="">
+        <img class="social-logo" src="imgs/instagram-brands-solid-full.svg" alt="">
       </a>
       <a aria-label="TikTok" class="w-12 h-12 rounded-full bg-white flex items-center justify-center border border-outline-variant hover:border-primary transition-colors duration-200" href="#" target="_blank" rel="noopener">
-        <img class="social-logo" src="../imgs/tiktok-brands-solid-full.svg" alt="">
+        <img class="social-logo" src="imgs/tiktok-brands-solid-full.svg" alt="">
       </a>
       <a aria-label="YouTube" class="w-12 h-12 rounded-full bg-white flex items-center justify-center border border-outline-variant hover:border-primary transition-colors duration-200" href="#">
-        <img class="social-logo" src="../imgs/youtube-brands-solid-full.svg" alt="">
+        <img class="social-logo" src="imgs/youtube-brands-solid-full.svg" alt="">
       </a>
       <a aria-label="Localização" class="w-12 h-12 rounded-full bg-white flex items-center justify-center border border-outline-variant hover:border-primary transition-colors duration-200" href="#" title="Porto Alegre, Brazil">
-        <img class="social-logo" src="../imgs/location-dot-solid-full.svg" alt="">
+        <img class="social-logo" src="imgs/location-dot-solid-full.svg" alt="">
       </a>
     </div>
   </header>
@@ -607,7 +623,7 @@
         <p class="text-white/70 font-body-md text-body-md leading-relaxed">Vamos entender teu momento atual e te indicar a melhor opção no CT.</p>
       </div>
       <div class="w-12 h-12 rounded-full bg-white flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-300">
-        <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'wght' 600;">arrow_forward</span>
+        <span class="fallback-icon text-primary" aria-hidden="true">→</span>
       </div>
     </button>
 
@@ -621,13 +637,12 @@
           <div class="absolute inset-0 bg-primary flex items-center justify-center">
             <span class="text-[10px] font-label-caps text-white absolute top-2 left-2">FORÇA</span>
           </div>
-          <img alt="" class="w-full h-full object-cover mix-blend-overlay opacity-30" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBe1XKdBezW2tgDwZWE8AS6hfgEbOVHVU-4nArP20Y9dYsbS30iAr27gkKGNZ_xC-VV6Z_g3ohYxRfEi5ORxA4N9CzLfQgpR1DHh_nJXfO09lAT-N8IXHeYBRnlup8E_zrvrrmEB5bxobYc8Ye3S8AnMTGe902Q4LmEE59AXvXJiIPTnUk8fpTN8w8I1BkujvXIpvqSDRGOeDnlsZRgoPjAWch768vA5hZRKD2vZ8DRoqJDbVp8Dz9xjA">
         </div>
         <div class="flex-1">
           <h4 class="font-headline-md text-[18px] text-primary group-hover:translate-x-1 transition-transform">Musculação com acompanhamento</h4>
           <p class="font-body-md text-body-md text-on-surface-variant">Treino orientado para resultado e constância.</p>
         </div>
-        <span class="material-symbols-outlined text-outline-variant group-hover:text-primary transition-colors" style='font-variation-settings: "FILL" 0, "wght" 300;'>chevron_right</span>
+        <span class="fallback-chevron text-outline-variant group-hover:text-primary transition-colors" aria-hidden="true">›</span>
       </button>
 
       <button class="performance-card group bg-white p-4 rounded-xl border border-surface-container-high hover:border-primary flex items-center gap-4 text-left" type="button" data-open-chat>
@@ -635,13 +650,12 @@
           <div class="absolute inset-0 bg-primary flex items-center justify-center">
             <span class="text-[10px] font-label-caps text-white absolute top-2 left-2">HYROX</span>
           </div>
-          <img alt="" class="w-full h-full object-cover mix-blend-overlay opacity-30" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJcHHm-hgiAhZrluHhul3dJTz8gfEHdTbYaUODf1l_jx_DWsti2ckflfpzjAbcBqykB59Yf186Ee1Pd5uh6CFTbvBmdqJM3uaWrrbsEDV90s8y_d4TlZfy_KKCasKxKmT--En2JSZ-erAPhLgCgIIT9FBUM0_Y5-kvciJfvxr4VNZjfJrgrcdePaOkyeRoQi0pbdE8S5pBGTazNpqf_ekE_25ryeikIH5UykjqlfZ8bKRicdBk2W4eCA">
         </div>
         <div class="flex-1">
           <h4 class="font-headline-md text-[18px] text-primary group-hover:translate-x-1 transition-transform">Corrida / HYROX</h4>
           <p class="font-body-md text-body-md text-on-surface-variant">Condicionamento, performance e evolução.</p>
         </div>
-        <span class="material-symbols-outlined text-outline-variant group-hover:text-primary transition-colors" style='font-variation-settings: "FILL" 0, "wght" 300;'>chevron_right</span>
+        <span class="fallback-chevron text-outline-variant group-hover:text-primary transition-colors" aria-hidden="true">›</span>
       </button>
 
       <button class="performance-card group bg-white p-4 rounded-xl border border-surface-container-high hover:border-primary flex items-center gap-4 text-left" type="button" data-open-chat>
@@ -649,13 +663,12 @@
           <div class="absolute inset-0 bg-primary flex items-center justify-center">
             <span class="text-[10px] font-label-caps text-white absolute top-2 left-2">START</span>
           </div>
-          <img alt="" class="w-full h-full object-cover mix-blend-overlay opacity-30" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDhLl3GObHfGB8KioMBPzaZCb8200YSrl2oRrNB7VELrDvTxMS9-rf9bYZDrhSbWfhxreS_AGCGGhPvo8-w5Gb0g_IrHPu1Fr68Y-R8gTT7wOw9aRXoe-XJjzd9h3VrzbpMvJKFlEY255MKwwhq93mveKwtVPffnX7Ur5DLJzxGygjMHu_dI4QoMzG1wnXYsiT-RwF3cHA_t_emwZcntj3onYAKDiwhQpIagr-9Tf3xl-d46pnNTEuDEw">
         </div>
         <div class="flex-1">
           <h4 class="font-headline-md text-[18px] text-primary group-hover:translate-x-1 transition-transform">Start</h4>
           <p class="font-body-md text-body-md text-on-surface-variant">O começo ideal para tua jornada.</p>
         </div>
-        <span class="material-symbols-outlined text-outline-variant group-hover:text-primary transition-colors">chevron_right</span>
+        <span class="fallback-chevron text-outline-variant group-hover:text-primary transition-colors" aria-hidden="true">›</span>
       </button>
     </div>
 
@@ -676,7 +689,7 @@
       <div class="min-w-[200px] flex-shrink-0 group">
         <div class="relative aspect-square bg-surface-container rounded-xl overflow-hidden mb-3 border border-outline-variant/30">
           <div class="absolute inset-0 flex items-center justify-center bg-primary/5">
-            <span class="material-symbols-outlined text-primary/20 text-4xl">shopping_bag</span>
+            <span class="fallback-product-icon text-primary/20" aria-hidden="true">□</span>
           </div>
           <div class="absolute top-2 right-2 bg-primary text-white text-[10px] font-label-caps px-2 py-1 rounded-full">EM BREVE</div>
         </div>
@@ -685,7 +698,7 @@
       <div class="min-w-[200px] flex-shrink-0 group">
         <div class="relative aspect-square bg-surface-container rounded-xl overflow-hidden mb-3 border border-outline-variant/30">
           <div class="absolute inset-0 flex items-center justify-center bg-primary/5">
-            <span class="material-symbols-outlined text-primary/20 text-4xl">fitness_center</span>
+            <span class="fallback-product-icon text-primary/20" aria-hidden="true">+</span>
           </div>
           <div class="absolute top-2 right-2 bg-primary text-white text-[10px] font-label-caps px-2 py-1 rounded-full">EM BREVE</div>
         </div>
@@ -694,7 +707,7 @@
       <div class="min-w-[200px] flex-shrink-0 group">
         <div class="relative aspect-square bg-surface-container rounded-xl overflow-hidden mb-3 border border-outline-variant/30">
           <div class="absolute inset-0 flex items-center justify-center bg-primary/5">
-            <span class="material-symbols-outlined text-primary/20 text-4xl">nutrition</span>
+            <span class="fallback-product-icon text-primary/20" aria-hidden="true">•</span>
           </div>
           <div class="absolute top-2 right-2 bg-primary text-white text-[10px] font-label-caps px-2 py-1 rounded-full">EM BREVE</div>
         </div>
@@ -710,33 +723,21 @@
     <div class="flex flex-col gap-4">
       <div class="bg-surface-container p-6 rounded-xl border border-outline-variant/30">
         <div class="flex gap-1 mb-3">
-          <span class="material-symbols-outlined text-[18px]" style='font-variation-settings: "FILL" 1;'>star</span>
-          <span class="material-symbols-outlined text-[18px]" style='font-variation-settings: "FILL" 1;'>star</span>
-          <span class="material-symbols-outlined text-[18px]" style='font-variation-settings: "FILL" 1;'>star</span>
-          <span class="material-symbols-outlined text-[18px]" style='font-variation-settings: "FILL" 1;'>star</span>
-          <span class="material-symbols-outlined text-[18px]" style='font-variation-settings: "FILL" 1;'>star</span>
+          <span aria-hidden="true">★★★★★</span>
         </div>
         <p class="font-body-md text-body-md text-primary mb-4 italic">"Resultados reais em pouco tempo!"</p>
         <p class="font-label-caps text-label-caps text-on-surface-variant">LUCAS SILVA</p>
       </div>
       <div class="bg-surface-container p-6 rounded-xl border border-outline-variant/30">
         <div class="flex gap-1 mb-3">
-          <span class="material-symbols-outlined text-[18px]" style='font-variation-settings: "FILL" 1;'>star</span>
-          <span class="material-symbols-outlined text-[18px]" style='font-variation-settings: "FILL" 1;'>star</span>
-          <span class="material-symbols-outlined text-[18px]" style='font-variation-settings: "FILL" 1;'>star</span>
-          <span class="material-symbols-outlined text-[18px]" style='font-variation-settings: "FILL" 1;'>star</span>
-          <span class="material-symbols-outlined text-[18px]" style='font-variation-settings: "FILL" 1;'>star</span>
+          <span aria-hidden="true">★★★★★</span>
         </div>
         <p class="font-body-md text-body-md text-primary mb-4 italic">"Ambiente incrível e profissionais de elite."</p>
         <p class="font-label-caps text-label-caps text-on-surface-variant">MARIANA COSTA</p>
       </div>
       <div class="bg-surface-container p-6 rounded-xl border border-outline-variant/30">
         <div class="flex gap-1 mb-3">
-          <span class="material-symbols-outlined text-[18px]" style='font-variation-settings: "FILL" 1;'>star</span>
-          <span class="material-symbols-outlined text-[18px]" style='font-variation-settings: "FILL" 1;'>star</span>
-          <span class="material-symbols-outlined text-[18px]" style='font-variation-settings: "FILL" 1;'>star</span>
-          <span class="material-symbols-outlined text-[18px]" style='font-variation-settings: "FILL" 1;'>star</span>
-          <span class="material-symbols-outlined text-[18px]" style='font-variation-settings: "FILL" 1;'>star</span>
+          <span aria-hidden="true">★★★★★</span>
         </div>
         <p class="font-body-md text-body-md text-primary mb-4 italic">"Melhor CT da região, foco total em performance."</p>
         <p class="font-label-caps text-label-caps text-on-surface-variant">RICARDO OLIVEIRA</p>
@@ -770,14 +771,14 @@
 
       <header class="chat-top">
         <div class="chat-avatar" aria-hidden="true">
-          <img src="../imgs/logoct.jpg" alt="">
+          <img src="imgs/logoct.jpg" alt="">
         </div>
         <div class="chat-title">
           <strong id="modalTitle">Atendente CT</strong>
           <span>Online agora</span>
         </div>
         <button class="chat-close" type="button" id="closeChatButton" aria-label="Fechar conversa">
-          <span class="material-symbols-outlined text-primary">close</span>
+          <span class="fallback-close" aria-hidden="true">×</span>
         </button>
       </header>
 
@@ -887,18 +888,6 @@
         trigger.addEventListener("click", openModal);
       });
 
-      document.querySelectorAll(".performance-card").forEach(function (card) {
-        card.addEventListener("mouseenter", function () {
-          const icon = card.querySelector(".material-symbols-outlined");
-          if (icon) icon.style.fontVariationSettings = "'FILL' 1, 'wght' 400";
-        });
-
-        card.addEventListener("mouseleave", function () {
-          const icon = card.querySelector(".material-symbols-outlined");
-          if (icon) icon.style.fontVariationSettings = "'FILL' 0, 'wght' 300";
-        });
-      });
-
       closeChatButton.addEventListener("click", closeModal);
 
       modal.addEventListener("click", function (event) {
@@ -967,7 +956,7 @@
         const isUser = message.role === "user";
         return `
           <div class="message-row ${isUser ? "user" : "bot"}">
-            ${isUser ? "" : `<div class="mini-avatar" aria-hidden="true"><img src="../imgs/logoct.jpg" alt=""></div>`}
+            ${isUser ? "" : `<div class="mini-avatar" aria-hidden="true"><img src="imgs/logoct.jpg" alt=""></div>`}
             <div class="bubble">${escapeHtml(message.text)}</div>
           </div>
         `;
