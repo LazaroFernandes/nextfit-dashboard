@@ -177,7 +177,7 @@
       width: min(100%, 640px);
       height: 100dvh;
       display: grid;
-      grid-template-rows: auto auto minmax(0, 1fr) auto;
+      grid-template-rows: auto auto minmax(0, 1fr);
       overflow: hidden;
       border: 1px solid var(--chat-line);
       border-radius: 0;
@@ -337,7 +337,7 @@
       flex-direction: column;
       gap: 10px;
       overflow-y: auto;
-      padding: 10px 12px 12px;
+      padding: 10px 12px max(18px, env(safe-area-inset-bottom));
       background: #ffffff;
       scroll-behavior: smooth;
     }
@@ -393,9 +393,23 @@
     }
 
     .composer {
-      padding: 10px 12px max(12px, env(safe-area-inset-bottom));
-      border-top: 0;
-      background: #ffffff;
+      display: none;
+    }
+
+    .inline-composer {
+      width: 100%;
+      max-width: calc(100% - 36px);
+      margin-left: 36px;
+    }
+
+    .inline-composer.start {
+      margin-top: 2px;
+    }
+
+    .inline-composer.text,
+    .inline-composer.final {
+      max-width: 100%;
+      margin-left: 0;
     }
 
     .quick-replies {
@@ -512,9 +526,10 @@
 
     .composer-actions {
       display: grid;
-      grid-template-columns: auto 1fr;
+      grid-template-columns: auto minmax(0, 1fr);
       gap: 8px;
       margin-top: 8px;
+      max-width: min(100%, 520px);
     }
 
     .hint {
@@ -534,16 +549,7 @@
     }
 
     .step-note {
-      margin: 10px 0 0;
-      color: var(--chat-muted);
-      font-family: "JetBrains Mono", monospace;
-      font-size: 0.53rem;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      line-height: 1.5;
-      text-align: center;
-      text-transform: uppercase;
-      opacity: 0.62;
+      display: none;
     }
 
     @media (max-width: 420px) {
@@ -575,11 +581,7 @@
       }
 
       .chat-window {
-        padding: 16px;
-      }
-
-      .composer {
-        padding: 16px 16px 32px;
+        padding: 16px 16px max(24px, env(safe-area-inset-bottom));
       }
 
       .quick-replies {
@@ -798,7 +800,6 @@
       </header>
 
       <div class="chat-window" id="chatWindow" aria-live="polite"></div>
-      <div class="composer" id="composer"></div>
     </div>
   </section>
 
@@ -895,7 +896,6 @@
       const modal = document.getElementById("chatModal");
       const closeChatButton = document.getElementById("closeChatButton");
       const chatWindow = document.getElementById("chatWindow");
-      const composer = document.getElementById("composer");
       const progressFill = document.getElementById("progressFill");
       const stepCount = document.getElementById("stepCount");
 
@@ -962,8 +962,8 @@
 
       function render() {
         setProgress();
-        chatWindow.innerHTML = state.messages.map(renderMessage).join("");
-        renderComposer();
+        chatWindow.innerHTML = state.messages.map(renderMessage).join("") + renderComposer();
+        bindComposer();
         scrollToBottom();
       }
 
@@ -979,30 +979,30 @@
 
       function renderComposer() {
         if (state.current < 0) {
-          composer.innerHTML = `
+          return `
+            <div class="inline-composer start">
             <button class="chat-button" type="button" id="startButton">Começar atendimento</button>
+            </div>
           `;
-          document.getElementById("startButton").addEventListener("click", startFlow);
-          return;
         }
 
         const step = steps[state.current];
 
         if (step.type === "text") {
-          composer.innerHTML = `
+          return `
+            <div class="inline-composer text">
             <div class="text-composer">
               <input class="text-input" id="${step.id}" type="text" autocomplete="name" placeholder="${escapeHtml(step.placeholder)}" value="${escapeHtml(state.answers[step.id] || "")}">
               <button class="chat-button" type="button" id="sendTextButton">Enviar</button>
             </div>
             <p class="error" id="error" role="alert"></p>
-            ${renderStepNote()}
+            </div>
           `;
-          bindTextStep(step);
-          return;
         }
 
         const selected = step.type === "multi" ? state.answers[step.id] || [] : [];
-        composer.innerHTML = `
+        return `
+          <div class="inline-composer">
           ${step.hint ? `<p class="hint">${escapeHtml(step.hint)}</p>` : ""}
           <div class="quick-replies" id="${step.id}" role="group" aria-label="${escapeHtml(step.label)}">
             ${step.options.map(function (option) {
@@ -1018,13 +1018,23 @@
               <button class="chat-button" type="button" id="sendMultiButton">Enviar resposta</button>
             </div>
           ` : ""}
-          ${renderStepNote()}
+          </div>
         `;
-        bindChoiceStep(step);
       }
 
-      function renderStepNote() {
-        return `<p class="step-note">Passo ${state.current + 1} de ${steps.length} • CT Ítalo Vieira Alta Performance</p>`;
+      function bindComposer() {
+        if (state.current < 0) {
+          document.getElementById("startButton").addEventListener("click", startFlow);
+          return;
+        }
+
+        const step = steps[state.current];
+        if (step.type === "text") {
+          bindTextStep(step);
+          return;
+        }
+
+        bindChoiceStep(step);
       }
 
       function startFlow() {
@@ -1108,7 +1118,7 @@
         if (step.type === "multi") {
           document.getElementById("clearMultiButton").addEventListener("click", function () {
             state.answers[step.id] = [];
-            renderComposer();
+            render();
           });
 
           document.getElementById("sendMultiButton").addEventListener("click", function () {
@@ -1179,9 +1189,10 @@
         });
         state.current = steps.length - 1;
         setProgress();
-        chatWindow.innerHTML = state.messages.map(renderMessage).join("");
-        composer.innerHTML = `
+        chatWindow.innerHTML = state.messages.map(renderMessage).join("") + `
+          <div class="inline-composer final">
           <a class="chat-button" id="manualLink" href="${buildWhatsappUrl()}" target="_blank" rel="noopener">Abrir WhatsApp</a>
+          </div>
         `;
         scrollToBottom();
 
