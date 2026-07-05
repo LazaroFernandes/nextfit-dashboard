@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
   <meta name="theme-color" content="#fbf9f9">
-  <title>CT Ítalo Vieira - Link in Bio</title>
+  <title>CT Ítalo Vieira - Pré-atendimento</title>
 
   <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700;800&family=Inter:wght@400;500&family=JetBrains+Mono:wght@600&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -148,6 +148,47 @@
       display: block;
       border-radius: 9999px;
       object-fit: cover;
+    }
+
+    .section-shell {
+      width: 100%;
+      max-width: 640px;
+      padding-inline: 1rem;
+    }
+
+    .value-icon {
+      width: 36px;
+      height: 36px;
+      display: grid;
+      place-items: center;
+      border-radius: 9999px;
+      background: #1b1c1c;
+      color: #fff;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.8rem;
+      font-weight: 600;
+      line-height: 1;
+    }
+
+    .faq-item summary {
+      list-style: none;
+    }
+
+    .faq-item summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .faq-item summary::after {
+      content: "+";
+      margin-left: 16px;
+      color: #1b1c1c;
+      font-size: 1.25rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .faq-item[open] summary::after {
+      content: "-";
     }
 
     .scrollbar-hide {
@@ -596,7 +637,7 @@
   </style>
 </head>
 
-<body class="min-h-screen flex flex-col items-center">
+<body class="min-h-screen flex flex-col items-center bg-surface">
   <header class="w-full max-w-[640px] flex flex-col items-center justify-center pt-10 pb-6 px-gutter bg-surface">
     <div class="relative mb-6">
       <div class="w-24 h-24 rounded-full border-4 border-surface-container-lowest shadow-sm flex items-center justify-center bg-white overflow-hidden p-1">
@@ -625,137 +666,213 @@
     </div>
   </header>
 
-  <main class="w-full max-w-[640px] flex flex-col gap-6 px-gutter pb-16">
-    <button class="performance-card group relative overflow-hidden rounded-2xl bg-primary p-6 flex items-center justify-between shadow-lg text-left" type="button" data-open-chat>
-      <div class="flex-1">
-        <h3 class="text-white font-headline-md text-headline-md mb-1 leading-tight pr-4">Qual treino combina melhor contigo?</h3>
-        <p class="text-white/70 font-body-md text-body-md leading-relaxed">Vamos entender teu momento atual e te indicar a melhor opção no CT.</p>
+  <main class="w-full flex flex-col items-center pb-16">
+    <section class="w-full max-w-[640px] px-gutter mb-12">
+      <button class="performance-card group relative overflow-hidden rounded-2xl bg-primary p-6 flex items-center justify-between shadow-lg text-left w-full" type="button" data-open-chat>
+        <div class="flex-1">
+          <h2 class="text-white font-headline-md text-headline-md mb-1 leading-tight pr-4">Qual treino combina melhor contigo?</h2>
+          <p class="text-white/70 font-body-md text-body-md leading-relaxed">Vamos entender teu momento atual e te indicar a melhor opção no CT.</p>
+        </div>
+        <div class="w-12 h-12 rounded-full bg-white flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-300">
+          <span class="fallback-icon text-primary" aria-hidden="true">→</span>
+        </div>
+      </button>
+    </section>
+
+    <section class="section-shell mb-12">
+      <div class="rounded-2xl bg-primary p-6 text-white shadow-xl">
+        <p class="font-label-caps text-label-caps text-white/60 mb-3">PROPOSTA DE VALOR</p>
+        <h2 class="font-headline-md text-headline-md mb-3">Não é só treinar. É ter acompanhamento.</h2>
+        <p class="font-body-md text-body-md text-white/72">
+          No CT Ítalo Vieira, tu não fica perdido no treino. A proposta é entregar orientação real, professores presentes e uma rotina pensada para o teu objetivo, seja emagrecer, ganhar massa, melhorar o condicionamento ou começar do zero.
+        </p>
       </div>
-      <div class="w-12 h-12 rounded-full bg-white flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-300">
-        <span class="fallback-icon text-primary" aria-hidden="true">→</span>
+
+      <div class="grid gap-3 mt-4 sm:grid-cols-2">
+        <article class="rounded-xl border border-outline-variant/30 bg-white p-5 shadow-sm">
+          <div class="value-icon mb-4">01</div>
+          <h3 class="font-headline-md text-[19px] leading-6 text-primary mb-2">Professor presente</h3>
+          <p class="font-body-md text-[15px] leading-6 text-on-surface-variant">Correção, orientação e acompanhamento durante o treino.</p>
+        </article>
+        <article class="rounded-xl border border-outline-variant/30 bg-white p-5 shadow-sm">
+          <div class="value-icon mb-4">02</div>
+          <h3 class="font-headline-md text-[19px] leading-6 text-primary mb-2">Treino com método</h3>
+          <p class="font-body-md text-[15px] leading-6 text-on-surface-variant">Planejamento para evoluir com constância, não só trocar exercícios.</p>
+        </article>
+        <article class="rounded-xl border border-outline-variant/30 bg-white p-5 shadow-sm">
+          <div class="value-icon mb-4">03</div>
+          <h3 class="font-headline-md text-[19px] leading-6 text-primary mb-2">Ambiente premium</h3>
+          <p class="font-body-md text-[15px] leading-6 text-on-surface-variant">Estrutura organizada, atendimento próximo e foco em resultado.</p>
+        </article>
+        <article class="rounded-xl border border-outline-variant/30 bg-white p-5 shadow-sm">
+          <div class="value-icon mb-4">04</div>
+          <h3 class="font-headline-md text-[19px] leading-6 text-primary mb-2">Do iniciante ao avançado</h3>
+          <p class="font-body-md text-[15px] leading-6 text-on-surface-variant">Musculação, Start, corrida e HYROX para diferentes objetivos.</p>
+        </article>
       </div>
-    </button>
+    </section>
 
-    <div class="mt-4 px-1">
-      <h2 class="text-label-caps font-label-caps text-on-surface-variant opacity-70">COMO PODEMOS TE AJUDAR HOJE:</h2>
-    </div>
+    <section class="section-shell mb-12" id="modalidades">
+      <div class="mb-6">
+        <p class="font-label-caps text-label-caps text-on-surface-variant mb-3">MODALIDADES</p>
+        <h2 class="font-headline-md text-headline-md text-primary mb-3">Escolhe o caminho que mais combina contigo</h2>
+        <p class="font-body-md text-body-md text-on-surface-variant">
+          Cada modalidade tem uma proposta, mas todas seguem o mesmo padrão: acompanhamento, orientação e evolução.
+        </p>
+      </div>
 
-    <div class="flex flex-col gap-4">
-      <button class="performance-card group bg-white p-4 rounded-xl border border-surface-container-high hover:border-primary flex items-center gap-4 text-left" type="button" data-open-chat>
-        <div class="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 relative">
-          <div class="absolute inset-0 bg-primary flex items-center justify-center">
-            <span class="text-[10px] font-label-caps text-white absolute top-2 left-2">FORÇA</span>
-          </div>
-        </div>
-        <div class="flex-1">
-          <h4 class="font-headline-md text-[18px] text-primary group-hover:translate-x-1 transition-transform">Musculação com acompanhamento</h4>
-          <p class="font-body-md text-body-md text-on-surface-variant">Treino orientado para resultado e constância.</p>
-        </div>
-        <span class="fallback-chevron text-outline-variant group-hover:text-primary transition-colors" aria-hidden="true">›</span>
-      </button>
+      <div class="grid gap-4">
+        <article class="rounded-2xl border border-outline-variant/30 bg-white p-5 shadow-sm">
+          <span class="font-label-caps text-label-caps text-on-surface-variant">FORÇA</span>
+          <h3 class="font-headline-md text-[23px] leading-7 text-primary mt-3 mb-2">Musculação com acompanhamento</h3>
+          <p class="font-body-md text-body-md text-on-surface-variant mb-4">Para quem quer emagrecer, ganhar massa muscular, melhorar o corpo e treinar com segurança.</p>
+          <ul class="grid gap-2 font-body-md text-[15px] text-primary mb-5">
+            <li>Treino orientado</li>
+            <li>Correção de execução</li>
+            <li>Progressão de carga</li>
+            <li>Acompanhamento próximo</li>
+          </ul>
+          <button class="performance-card w-full min-h-[50px] rounded-full bg-primary px-5 py-3 font-label-caps text-label-caps text-white" type="button" data-open-chat>Quero musculação</button>
+        </article>
 
-      <button class="performance-card group bg-white p-4 rounded-xl border border-surface-container-high hover:border-primary flex items-center gap-4 text-left" type="button" data-open-chat>
-        <div class="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 relative">
-          <div class="absolute inset-0 bg-primary flex items-center justify-center">
-            <span class="text-[10px] font-label-caps text-white absolute top-2 left-2">HYROX</span>
-          </div>
-        </div>
-        <div class="flex-1">
-          <h4 class="font-headline-md text-[18px] text-primary group-hover:translate-x-1 transition-transform">Corrida / HYROX</h4>
-          <p class="font-body-md text-body-md text-on-surface-variant">Condicionamento, performance e evolução.</p>
-        </div>
-        <span class="fallback-chevron text-outline-variant group-hover:text-primary transition-colors" aria-hidden="true">›</span>
-      </button>
+        <article class="rounded-2xl border border-outline-variant/30 bg-white p-5 shadow-sm">
+          <span class="font-label-caps text-label-caps text-on-surface-variant">PERFORMANCE</span>
+          <h3 class="font-headline-md text-[23px] leading-7 text-primary mt-3 mb-2">Corrida / HYROX</h3>
+          <p class="font-body-md text-body-md text-on-surface-variant mb-4">Para quem busca condicionamento, performance, resistência e um treino mais desafiador.</p>
+          <ul class="grid gap-2 font-body-md text-[15px] text-primary mb-5">
+            <li>Treinos híbridos</li>
+            <li>Corrida + força</li>
+            <li>Condicionamento</li>
+            <li>Preparação para desafios</li>
+          </ul>
+          <button class="performance-card w-full min-h-[50px] rounded-full bg-primary px-5 py-3 font-label-caps text-label-caps text-white" type="button" data-open-chat>Quero HYROX</button>
+        </article>
 
-      <button class="performance-card group bg-white p-4 rounded-xl border border-surface-container-high hover:border-primary flex items-center gap-4 text-left" type="button" data-open-chat>
-        <div class="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 relative">
-          <div class="absolute inset-0 bg-primary flex items-center justify-center">
-            <span class="text-[10px] font-label-caps text-white absolute top-2 left-2">START</span>
-          </div>
-        </div>
-        <div class="flex-1">
-          <h4 class="font-headline-md text-[18px] text-primary group-hover:translate-x-1 transition-transform">Start</h4>
-          <p class="font-body-md text-body-md text-on-surface-variant">O começo ideal para tua jornada.</p>
-        </div>
-        <span class="fallback-chevron text-outline-variant group-hover:text-primary transition-colors" aria-hidden="true">›</span>
-      </button>
-    </div>
+        <article class="rounded-2xl border border-outline-variant/30 bg-white p-5 shadow-sm">
+          <span class="font-label-caps text-label-caps text-on-surface-variant">START</span>
+          <h3 class="font-headline-md text-[23px] leading-7 text-primary mt-3 mb-2">Start</h3>
+          <p class="font-body-md text-body-md text-on-surface-variant mb-4">Para quem está começando do zero, tem vergonha, insegurança ou dificuldade de manter constância.</p>
+          <ul class="grid gap-2 font-body-md text-[15px] text-primary mb-5">
+            <li>Começo guiado</li>
+            <li>Adaptação gradual</li>
+            <li>Mais segurança</li>
+            <li>Construção de rotina</li>
+          </ul>
+          <button class="performance-card w-full min-h-[50px] rounded-full bg-primary px-5 py-3 font-label-caps text-label-caps text-white" type="button" data-open-chat>Quero começar</button>
+        </article>
+      </div>
+    </section>
 
-    <div class="mt-8 p-8 rounded-2xl bg-surface-container text-center border border-outline-variant/30">
-      <span class="text-label-caps font-label-caps text-primary mb-4 block">EXCLUSIVIDADE &amp; RESULTADO</span>
-      <h3 class="text-headline-md font-headline-md text-primary mb-4">Vagas limitadas para o acompanhamento premium.</h3>
-      <button class="bg-primary text-white font-label-caps text-label-caps py-3 px-8 rounded-full hover:scale-105 transition-transform active:scale-95" type="button" data-open-chat>
-        VER PLANOS
-      </button>
-    </div>
+    <section class="section-shell mb-12">
+      <div class="rounded-2xl bg-surface-container p-6 text-center border border-outline-variant/30">
+        <h2 class="font-headline-md text-headline-md text-primary mb-3">Não sabe qual plano escolher?</h2>
+        <p class="font-body-md text-body-md text-on-surface-variant mb-5">
+          Responde as perguntas rápidas e deixa o time do CT te indicar o melhor caminho conforme teu objetivo, dificuldade e momento atual.
+        </p>
+        <button class="performance-card min-h-[50px] rounded-full bg-primary px-8 py-3 font-label-caps text-label-caps text-white" type="button" data-open-chat>Responder agora</button>
+      </div>
+    </section>
+
+    <section class="section-shell mb-12">
+      <div class="mb-6">
+        <p class="font-label-caps text-label-caps text-on-surface-variant mb-3">PROVA SOCIAL</p>
+        <h2 class="font-headline-md text-headline-md text-primary mb-3">O que nossos alunos sentem treinando no CT</h2>
+        <p class="font-body-md text-body-md text-on-surface-variant">Mais do que estrutura, o que faz diferença é ter alguém olhando de perto.</p>
+      </div>
+
+      <div class="grid gap-4">
+        <article class="bg-white p-5 rounded-xl border border-outline-variant/30 shadow-sm">
+          <!-- Substituir por prints reais de alunos ou avaliações do Google quando disponíveis. -->
+          <p class="font-body-md text-body-md text-primary mb-4 italic">"Resultados reais em pouco tempo."</p>
+          <p class="font-label-caps text-label-caps text-on-surface-variant">LUCAS SILVA</p>
+        </article>
+        <article class="bg-white p-5 rounded-xl border border-outline-variant/30 shadow-sm">
+          <p class="font-body-md text-body-md text-primary mb-4 italic">"Ambiente incrível e profissionais de elite."</p>
+          <p class="font-label-caps text-label-caps text-on-surface-variant">MARIANA COSTA</p>
+        </article>
+        <article class="bg-white p-5 rounded-xl border border-outline-variant/30 shadow-sm">
+          <p class="font-body-md text-body-md text-primary mb-4 italic">"Melhor CT da região, foco total em performance."</p>
+          <p class="font-label-caps text-label-caps text-on-surface-variant">RICARDO OLIVEIRA</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section-shell mb-12">
+      <div class="mb-6">
+        <p class="font-label-caps text-label-caps text-on-surface-variant mb-3">RESULTADOS</p>
+        <h2 class="font-headline-md text-headline-md text-primary mb-3">Resultados que o CT ajuda a construir</h2>
+        <p class="font-body-md text-body-md text-on-surface-variant">Cada aluno chega com uma dificuldade. O método é ajustar o caminho para gerar evolução.</p>
+      </div>
+
+      <div class="grid gap-4">
+        <article class="rounded-xl bg-surface-container p-5 border border-outline-variant/30">
+          <h3 class="font-headline-md text-[21px] leading-7 text-primary mb-2">Começar do zero</h3>
+          <p class="font-body-md text-body-md text-on-surface-variant mb-4">Para quem não sabe o que fazer no treino, sente vergonha ou já tentou começar várias vezes e parou.</p>
+          <p class="font-body-md text-[15px] leading-6 text-primary"><strong>Resultado esperado:</strong> Mais segurança, rotina e constância.</p>
+        </article>
+        <article class="rounded-xl bg-surface-container p-5 border border-outline-variant/30">
+          <h3 class="font-headline-md text-[21px] leading-7 text-primary mb-2">Emagrecimento e definição</h3>
+          <p class="font-body-md text-body-md text-on-surface-variant mb-4">Para quem quer perder gordura, melhorar o corpo e treinar com direcionamento.</p>
+          <p class="font-body-md text-[15px] leading-6 text-primary"><strong>Resultado esperado:</strong> Treino mais organizado, gasto calórico maior e acompanhamento.</p>
+        </article>
+        <article class="rounded-xl bg-surface-container p-5 border border-outline-variant/30">
+          <h3 class="font-headline-md text-[21px] leading-7 text-primary mb-2">Condicionamento e HYROX</h3>
+          <p class="font-body-md text-body-md text-on-surface-variant mb-4">Para quem quer correr melhor, ter mais resistência e desenvolver força para treinos híbridos.</p>
+          <p class="font-body-md text-[15px] leading-6 text-primary"><strong>Resultado esperado:</strong> Mais performance, resistência e evolução física.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section-shell mb-12">
+      <div class="mb-6">
+        <p class="font-label-caps text-label-caps text-on-surface-variant mb-3">FAQ</p>
+        <h2 class="font-headline-md text-headline-md text-primary">Dúvidas comuns antes de começar</h2>
+      </div>
+
+      <div class="grid gap-3">
+        <details class="faq-item rounded-xl bg-white border border-outline-variant/30 p-5">
+          <summary class="cursor-pointer flex items-center justify-between gap-4 font-headline-md text-[18px] leading-6 text-primary">Sou iniciante. Consigo treinar no CT?</summary>
+          <p class="font-body-md text-body-md text-on-surface-variant mt-3">Sim. O CT tem opções para quem está começando do zero. A ideia é te orientar desde o início, com segurança e progressão.</p>
+        </details>
+        <details class="faq-item rounded-xl bg-white border border-outline-variant/30 p-5">
+          <summary class="cursor-pointer flex items-center justify-between gap-4 font-headline-md text-[18px] leading-6 text-primary">Preciso saber fazer os exercícios?</summary>
+          <p class="font-body-md text-body-md text-on-surface-variant mt-3">Não. O acompanhamento existe justamente para te orientar, corrigir execução e te ajudar a treinar melhor.</p>
+        </details>
+        <details class="faq-item rounded-xl bg-white border border-outline-variant/30 p-5">
+          <summary class="cursor-pointer flex items-center justify-between gap-4 font-headline-md text-[18px] leading-6 text-primary">O CT é só para quem já treina pesado?</summary>
+          <p class="font-body-md text-body-md text-on-surface-variant mt-3">Não. Temos alunos em diferentes níveis. O treino é direcionado conforme teu momento e teu objetivo.</p>
+        </details>
+        <details class="faq-item rounded-xl bg-white border border-outline-variant/30 p-5">
+          <summary class="cursor-pointer flex items-center justify-between gap-4 font-headline-md text-[18px] leading-6 text-primary">Tem treino para emagrecimento?</summary>
+          <p class="font-body-md text-body-md text-on-surface-variant mt-3">Sim. A musculação com acompanhamento e os treinos de condicionamento podem ser direcionados para emagrecimento, definição e melhora do condicionamento.</p>
+        </details>
+        <details class="faq-item rounded-xl bg-white border border-outline-variant/30 p-5">
+          <summary class="cursor-pointer flex items-center justify-between gap-4 font-headline-md text-[18px] leading-6 text-primary">O que é o HYROX?</summary>
+          <p class="font-body-md text-body-md text-on-surface-variant mt-3">É uma modalidade híbrida que mistura corrida, força e condicionamento. No CT, ela é adaptada para diferentes níveis.</p>
+        </details>
+        <details class="faq-item rounded-xl bg-white border border-outline-variant/30 p-5">
+          <summary class="cursor-pointer flex items-center justify-between gap-4 font-headline-md text-[18px] leading-6 text-primary">Como descubro o melhor plano para mim?</summary>
+          <p class="font-body-md text-body-md text-on-surface-variant mt-3">É só responder as 5 perguntas rápidas. Com base nas tuas respostas, o atendimento do CT te direciona para a melhor opção.</p>
+        </details>
+        <details class="faq-item rounded-xl bg-white border border-outline-variant/30 p-5">
+          <summary class="cursor-pointer flex items-center justify-between gap-4 font-headline-md text-[18px] leading-6 text-primary">Vou direto para o WhatsApp?</summary>
+          <p class="font-body-md text-body-md text-on-surface-variant mt-3">Sim. Depois das respostas, a página abre o WhatsApp do CT com uma mensagem pronta contendo teus dados.</p>
+        </details>
+      </div>
+    </section>
+
+    <section class="section-shell">
+      <div class="rounded-2xl bg-primary p-7 text-center text-white shadow-xl">
+        <h2 class="font-headline-md text-headline-md mb-3">Pronto para treinar com acompanhamento de verdade?</h2>
+        <p class="font-body-md text-body-md text-white/72 mb-6">Responde as perguntas e descobre qual modalidade faz mais sentido para teu objetivo hoje.</p>
+        <button class="performance-card min-h-[52px] rounded-full bg-white px-8 py-3 font-label-caps text-label-caps text-primary" type="button" data-open-chat>Começar atendimento</button>
+        <p class="font-body-md text-[13px] leading-5 text-white/55 mt-4">Leva menos de 1 minuto.</p>
+      </div>
+    </section>
   </main>
 
-  <section class="w-full max-w-[640px] px-gutter mb-16">
-    <div class="mb-6 px-1">
-      <h2 class="text-label-caps font-label-caps text-on-surface-variant opacity-70 uppercase">PRODUTOS DISPONÍVEIS</h2>
-    </div>
-    <div class="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
-      <div class="min-w-[200px] flex-shrink-0 group">
-        <div class="relative aspect-square bg-surface-container rounded-xl overflow-hidden mb-3 border border-outline-variant/30">
-          <div class="absolute inset-0 flex items-center justify-center bg-primary/5">
-            <span class="fallback-product-icon text-primary/20" aria-hidden="true">□</span>
-          </div>
-          <div class="absolute top-2 right-2 bg-primary text-white text-[10px] font-label-caps px-2 py-1 rounded-full">EM BREVE</div>
-        </div>
-        <h4 class="font-label-caps text-label-caps text-primary">Camiseta Performance</h4>
-      </div>
-      <div class="min-w-[200px] flex-shrink-0 group">
-        <div class="relative aspect-square bg-surface-container rounded-xl overflow-hidden mb-3 border border-outline-variant/30">
-          <div class="absolute inset-0 flex items-center justify-center bg-primary/5">
-            <span class="fallback-product-icon text-primary/20" aria-hidden="true">+</span>
-          </div>
-          <div class="absolute top-2 right-2 bg-primary text-white text-[10px] font-label-caps px-2 py-1 rounded-full">EM BREVE</div>
-        </div>
-        <h4 class="font-label-caps text-label-caps text-primary">Acessórios Treino</h4>
-      </div>
-      <div class="min-w-[200px] flex-shrink-0 group">
-        <div class="relative aspect-square bg-surface-container rounded-xl overflow-hidden mb-3 border border-outline-variant/30">
-          <div class="absolute inset-0 flex items-center justify-center bg-primary/5">
-            <span class="fallback-product-icon text-primary/20" aria-hidden="true">•</span>
-          </div>
-          <div class="absolute top-2 right-2 bg-primary text-white text-[10px] font-label-caps px-2 py-1 rounded-full">EM BREVE</div>
-        </div>
-        <h4 class="font-label-caps text-label-caps text-primary">Suplementação CT</h4>
-      </div>
-    </div>
-  </section>
-
-  <section class="w-full max-w-[640px] px-gutter mb-16">
-    <div class="mb-6 px-1">
-      <h2 class="text-label-caps font-label-caps text-on-surface-variant opacity-70">O QUE DIZEM NOSSOS ALUNOS</h2>
-    </div>
-    <div class="flex flex-col gap-4">
-      <div class="bg-surface-container p-6 rounded-xl border border-outline-variant/30">
-        <div class="flex gap-1 mb-3">
-          <span aria-hidden="true">★★★★★</span>
-        </div>
-        <p class="font-body-md text-body-md text-primary mb-4 italic">"Resultados reais em pouco tempo!"</p>
-        <p class="font-label-caps text-label-caps text-on-surface-variant">LUCAS SILVA</p>
-      </div>
-      <div class="bg-surface-container p-6 rounded-xl border border-outline-variant/30">
-        <div class="flex gap-1 mb-3">
-          <span aria-hidden="true">★★★★★</span>
-        </div>
-        <p class="font-body-md text-body-md text-primary mb-4 italic">"Ambiente incrível e profissionais de elite."</p>
-        <p class="font-label-caps text-label-caps text-on-surface-variant">MARIANA COSTA</p>
-      </div>
-      <div class="bg-surface-container p-6 rounded-xl border border-outline-variant/30">
-        <div class="flex gap-1 mb-3">
-          <span aria-hidden="true">★★★★★</span>
-        </div>
-        <p class="font-body-md text-body-md text-primary mb-4 italic">"Melhor CT da região, foco total em performance."</p>
-        <p class="font-label-caps text-label-caps text-on-surface-variant">RICARDO OLIVEIRA</p>
-      </div>
-    </div>
-  </section>
-
-  <footer class="w-full max-w-[640px] py-12 flex flex-col items-center gap-6 text-center px-gutter border-t border-outline-variant/30">
-    <div class="flex gap-6 mb-2">
+  <footer class="section-shell py-10 flex flex-col items-center gap-4 text-center border-t border-outline-variant/30">
+    <div class="flex gap-6">
       <a class="text-label-caps font-label-caps text-on-surface-variant hover:text-primary transition-colors" href="#">Privacidade</a>
       <a class="text-label-caps font-label-caps text-on-surface-variant hover:text-primary transition-colors" href="#">Termos</a>
       <a class="text-label-caps font-label-caps text-on-surface-variant hover:text-primary transition-colors" href="https://wa.me/5551997801697" target="_blank" rel="noopener">Contato</a>
@@ -802,16 +919,27 @@
 
       const steps = [
         {
-          id: "nome",
-          type: "text",
-          label: "Qual teu nome?",
+          id: "dificuldade",
+          type: "multi",
+          label: "O que mais está te impedindo de evoluir hoje?",
           required: true,
-          placeholder: "Digite teu nome"
+          max: 2,
+          hint: "Escolhe até 2 opções.",
+          options: [
+            "Falta de constância",
+            "Não sei o que fazer no treino",
+            "Treino e não vejo resultado",
+            "Falta de motivação",
+            "Vergonha ou insegurança de começar",
+            "Falta de tempo",
+            "Alimentação desregulada",
+            "Dor ou limitação física"
+          ]
         },
         {
           id: "objetivo",
           type: "single",
-          label: "Qual teu principal objetivo hoje?",
+          label: "E qual resultado tu mais quer buscar agora?",
           required: true,
           options: [
             "Emagrecer / perder barriga",
@@ -823,27 +951,9 @@
           ]
         },
         {
-          id: "dificuldade",
-          type: "multi",
-          label: "Qual tua maior dificuldade hoje?",
-          required: true,
-          max: 2,
-          hint: "Escolhe até 2 opções.",
-          options: [
-            "Falta de constância",
-            "Não sei o que fazer no treino",
-            "Falta de resultado",
-            "Falta de motivação",
-            "Vergonha ou insegurança de começar",
-            "Falta de tempo",
-            "Alimentação desregulada",
-            "Dor ou limitação física"
-          ]
-        },
-        {
           id: "urgencia",
           type: "single",
-          label: "Quando tu pretende começar?",
+          label: "Quando tu gostaria de começar essa mudança?",
           required: true,
           options: [
             "O quanto antes",
@@ -855,7 +965,7 @@
         {
           id: "investimento",
           type: "single",
-          label: "Quanto tu está disposto a investir por mês para ter acompanhamento de verdade?",
+          label: "Para ter acompanhamento de verdade, qual faixa faz mais sentido para ti hoje?",
           required: true,
           options: [
             "Até R$ 150/mês",
@@ -864,6 +974,13 @@
             "Acima de R$ 400/mês",
             "Quero entender as opções primeiro"
           ]
+        },
+        {
+          id: "nome",
+          type: "text",
+          label: "Perfeito. Para finalizar, como podemos te chamar?",
+          required: true,
+          placeholder: "Digite teu nome"
         }
       ];
 
@@ -874,7 +991,7 @@
         },
         {
           role: "bot",
-          text: "Com essas respostas conseguimos entender teu objetivo e te indicar a melhor opção no CT Ítalo Vieira."
+          text: "Com essas respostas, conseguimos entender teu momento e indicar o melhor caminho no CT Ítalo Vieira."
         }
       ];
 
@@ -924,7 +1041,7 @@
 
       function getUtms() {
         const params = new URLSearchParams(window.location.search);
-        const keys = ["utm_source", "utm_campaign", "utm_medium"];
+        const keys = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term"];
 
         return keys.reduce(function (acc, key) {
           const value = params.get(key);
@@ -1098,7 +1215,7 @@
             }
 
             if (selected.length >= step.max) {
-              error.textContent = "Tu pode escolher no máximo " + step.max + " opções.";
+            error.textContent = "Tu pode escolher no máximo " + step.max + " opções.";
               return;
             }
 
@@ -1141,17 +1258,15 @@
 
       function buildMessage() {
         const lines = [
-          "Olá, vim pelo Instagram e preenchi o pré-atendimento.",
+          "Olá! Vim pelo Instagram/site do CT Ítalo Vieira e respondi o pré-atendimento.",
           "",
           "Nome: " + state.answers.nome,
-          "",
-          "Objetivo principal: " + state.answers.objetivo,
-          "",
           "Maior dificuldade: " + state.answers.dificuldade.join(", "),
+          "Objetivo principal: " + state.answers.objetivo,
+          "Quando gostaria de começar: " + state.answers.urgencia,
+          "Investimento mensal: " + state.answers.investimento,
           "",
-          "Pretendo começar: " + state.answers.urgencia,
-          "",
-          "Investimento mensal: " + state.answers.investimento
+          "Quero entender qual opção faz mais sentido para mim."
         ];
 
         const utmLines = Object.entries(state.utms).map(function ([key, value]) {
@@ -1159,7 +1274,7 @@
         });
 
         if (utmLines.length > 0) {
-          lines.push("", "UTMs:", ...utmLines);
+          lines.push("", "Origem:", ...utmLines);
         }
 
         return lines.join("\n");
@@ -1174,10 +1289,6 @@
         state.messages.push({
           role: "bot",
           text: "Tudo certo! Agora vamos te direcionar para o WhatsApp."
-        });
-        state.messages.push({
-          role: "bot",
-          text: "A mensagem já vai preenchida com tuas respostas."
         });
         state.current = steps.length - 1;
         setProgress();
