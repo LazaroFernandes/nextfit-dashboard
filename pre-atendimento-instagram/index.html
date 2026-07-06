@@ -4,6 +4,21 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
   <meta name="theme-color" content="#fbf9f9">
+  <meta name="description" content="Responde 5 perguntas rápidas e descobre o melhor caminho para treinar com acompanhamento de verdade no CT Ítalo Vieira.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://ctitalovieira.com.br/">
+  <link rel="icon" href="imgs/logoct.jpg" type="image/jpeg">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="pt_BR">
+  <meta property="og:site_name" content="CT Ítalo Vieira">
+  <meta property="og:title" content="CT Ítalo Vieira - Pré-atendimento">
+  <meta property="og:description" content="Responde 5 perguntas e descobre o melhor caminho para treinar com acompanhamento de verdade.">
+  <meta property="og:url" content="https://ctitalovieira.com.br/">
+  <meta property="og:image" content="https://ctitalovieira.com.br/imgs/logoct.jpg">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="CT Ítalo Vieira - Pré-atendimento">
+  <meta name="twitter:description" content="Responde 5 perguntas e descobre o melhor caminho para treinar com acompanhamento de verdade.">
+  <meta name="twitter:image" content="https://ctitalovieira.com.br/imgs/logoct.jpg">
   <title>CT Ítalo Vieira - Pré-atendimento</title>
 
   <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700;800&family=Inter:wght@400;500&family=JetBrains+Mono:wght@600&display=swap" rel="stylesheet">
@@ -97,6 +112,36 @@
         }
       }
     };
+  </script>
+
+  <script>
+    window.CT_META_PIXEL_ID = "";
+
+    (function (pixelId) {
+      if (!pixelId) {
+        return;
+      }
+
+      !function (f, b, e, v, n, t, s) {
+        if (f.fbq) return;
+        n = f.fbq = function () {
+          n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
+        };
+        if (!f._fbq) f._fbq = n;
+        n.push = n;
+        n.loaded = true;
+        n.version = "2.0";
+        n.queue = [];
+        t = b.createElement(e);
+        t.async = true;
+        t.src = v;
+        s = b.getElementsByTagName(e)[0];
+        s.parentNode.insertBefore(t, s);
+      }(window, document, "script", "https://connect.facebook.net/en_US/fbevents.js");
+
+      fbq("init", pixelId);
+      fbq("track", "PageView");
+    })(window.CT_META_PIXEL_ID);
   </script>
 
   <style>
@@ -651,16 +696,16 @@
     </p>
 
     <div class="flex gap-4 mt-8">
-      <a aria-label="Instagram" class="w-12 h-12 rounded-full bg-white flex items-center justify-center border border-outline-variant hover:border-primary transition-colors duration-200" href="https://www.instagram.com/" target="_blank" rel="noopener">
+      <a aria-label="Instagram" class="w-12 h-12 rounded-full bg-white flex items-center justify-center border border-outline-variant hover:border-primary transition-colors duration-200" href="https://www.instagram.com/ctitalovieira" target="_blank" rel="noopener">
         <img class="social-logo" src="imgs/instagram-brands-solid-full.svg" alt="">
       </a>
-      <a aria-label="TikTok" class="w-12 h-12 rounded-full bg-white flex items-center justify-center border border-outline-variant hover:border-primary transition-colors duration-200" href="#" target="_blank" rel="noopener">
+      <a aria-label="TikTok" class="hidden w-12 h-12 rounded-full bg-white items-center justify-center border border-outline-variant hover:border-primary transition-colors duration-200" href="#" target="_blank" rel="noopener" aria-hidden="true" tabindex="-1">
         <img class="social-logo" src="imgs/tiktok-brands-solid-full.svg" alt="">
       </a>
-      <a aria-label="YouTube" class="w-12 h-12 rounded-full bg-white flex items-center justify-center border border-outline-variant hover:border-primary transition-colors duration-200" href="#">
+      <a aria-label="YouTube" class="hidden w-12 h-12 rounded-full bg-white items-center justify-center border border-outline-variant hover:border-primary transition-colors duration-200" href="#" aria-hidden="true" tabindex="-1">
         <img class="social-logo" src="imgs/youtube-brands-solid-full.svg" alt="">
       </a>
-      <a aria-label="Localização" class="w-12 h-12 rounded-full bg-white flex items-center justify-center border border-outline-variant hover:border-primary transition-colors duration-200" href="#" title="Porto Alegre, Brazil">
+      <a aria-label="Localização" class="w-12 h-12 rounded-full bg-white flex items-center justify-center border border-outline-variant hover:border-primary transition-colors duration-200" href="https://maps.app.goo.gl/DjTQydMgoLuDziy36" target="_blank" rel="noopener" title="CT Ítalo Vieira no Google Maps">
         <img class="social-logo" src="imgs/location-dot-solid-full.svg" alt="">
       </a>
     </div>
@@ -873,8 +918,8 @@
 
   <footer class="section-shell py-10 flex flex-col items-center gap-4 text-center border-t border-outline-variant/30">
     <div class="flex gap-6">
-      <a class="text-label-caps font-label-caps text-on-surface-variant hover:text-primary transition-colors" href="#">Privacidade</a>
-      <a class="text-label-caps font-label-caps text-on-surface-variant hover:text-primary transition-colors" href="#">Termos</a>
+      <a class="text-label-caps font-label-caps text-on-surface-variant hover:text-primary transition-colors" href="privacidade.html">Privacidade</a>
+      <a class="text-label-caps font-label-caps text-on-surface-variant hover:text-primary transition-colors" href="termos.html">Termos</a>
       <a class="text-label-caps font-label-caps text-on-surface-variant hover:text-primary transition-colors" href="https://wa.me/5551997801697" target="_blank" rel="noopener">Contato</a>
     </div>
     <div class="text-primary font-label-caps text-label-caps tracking-widest">CT ÍTALO VIEIRA</div>
@@ -1008,6 +1053,14 @@
       const progressFill = document.getElementById("progressFill");
       const stepCount = document.getElementById("stepCount");
 
+      function trackMetaEvent(eventName, params, standardEvent) {
+        if (typeof window.fbq !== "function") {
+          return;
+        }
+
+        window.fbq(standardEvent ? "track" : "trackCustom", eventName, params || {});
+      }
+
       document.querySelectorAll("[data-open-chat]").forEach(function (trigger) {
         trigger.addEventListener("click", openModal);
       });
@@ -1030,6 +1083,7 @@
         modal.classList.add("open");
         modal.setAttribute("aria-hidden", "false");
         document.body.classList.add("modal-lock");
+        trackMetaEvent("LeadModalOpen", { content_name: "Pre-atendimento WhatsApp" });
         render();
       }
 
@@ -1148,6 +1202,7 @@
 
       function startFlow() {
         state.current = 0;
+        trackMetaEvent("LeadFormStart", { content_name: "Pre-atendimento WhatsApp" });
         askCurrentQuestion();
       }
 
@@ -1290,6 +1345,7 @@
           role: "bot",
           text: "Tudo certo! Agora vamos te direcionar para o WhatsApp."
         });
+        trackMetaEvent("Lead", { content_name: "Pre-atendimento WhatsApp" }, true);
         state.current = steps.length - 1;
         setProgress();
         chatWindow.innerHTML = state.messages.map(renderMessage).join("") + `
