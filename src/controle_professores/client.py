@@ -5,6 +5,7 @@ planilha nova (separada do GOOGLE_SHEET_ID que e a do sync NextFit).
 """
 from __future__ import annotations
 
+import json
 import os
 import sys
 from pathlib import Path
@@ -42,46 +43,32 @@ def get_creds_path() -> Path:
     return p
 
 
-def _st_secrets() -> dict | None:
-    """Retorna st.secrets se rodando sob Streamlit com secrets configurados.
-
-    Em produção (Streamlit Community Cloud) as credenciais vêm daqui; localmente,
-    sem secrets.toml, retorna None e o codigo cai pro .env + arquivo local.
-    """
+def _credentials_info() -> dict | None:
+    """Lê a service account de uma variável JSON, quando configurada."""
+    raw = os.environ.get("GOOGLE_SERVICE_ACCOUNT_JSON", "").strip()
+    if not raw:
+        return None
     try:
-        import streamlit as st
-
-        # Acessar st.secrets sem secrets.toml lanca excecao — por isso o try.
-        if "gcp_service_account" in st.secrets:
-            return st.secrets
-    except Exception:
-        pass
-    return None
+        value = json.loads(raw)
+    except json.JSONDecodeError as exc:
+        raise RuntimeError("GOOGLE_SERVICE_ACCOUNT_JSON contém JSON inválido") from exc
+    if not isinstance(value, dict):
+        raise RuntimeError("GOOGLE_SERVICE_ACCOUNT_JSON deve conter um objeto JSON")
+    return value
 
 
 def _open(sheet_id_env: str) -> SheetsClient:
     """Abre uma planilha pelo nome da variavel que guarda seu id.
 
-    Prioriza st.secrets (prod); cai pro .env + credentials/service-account.json (dev).
+    Prioriza GOOGLE_SERVICE_ACCOUNT_JSON (produção); cai no arquivo local (dev).
     """
-    secrets = _st_secrets()
-    if secrets is not None:
-        # ID da planilha: primeiro nos secrets; se ausente, cai pro .env. Assim um
-        # secrets.toml local que só tem as credenciais continua funcionando.
-        sid = str(secrets.get(sheet_id_env) or "").strip()
-        if not sid:
-            load_env()
-            sid = os.environ.get(sheet_id_env, "").strip()
-        if not sid:
-            raise RuntimeError(f"{sheet_id_env} nao definida nos Secrets nem no .env.")
-        return SheetsClient(
-            credentials_info=dict(secrets["gcp_service_account"]),
-            sheet_id=sid,
-        )
     load_env()
     sid = os.environ.get(sheet_id_env, "").strip()
     if not sid:
         raise RuntimeError(f"{sheet_id_env} nao definida no .env")
+    credentials_info = _credentials_info()
+    if credentials_info is not None:
+        return SheetsClient(credentials_info=credentials_info, sheet_id=sid)
     return SheetsClient(credentials_file=str(get_creds_path()), sheet_id=sid)
 
 
