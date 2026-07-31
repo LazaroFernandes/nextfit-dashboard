@@ -1,0 +1,187 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+}
+
+enum QueueStatus {
+  PENDING
+  DISPLAYING
+  COMPLETED
+  EXPIRED
+}
+
+enum EventSource {
+  TURNSTILE
+  NEXTFIT
+  ADMIN
+  OTHER
+}
+
+enum DeviceStatus {
+  ONLINE
+  OFFLINE
+}
+
+model AdminUser {
+  id           String     @id @default(cuid())
+  email        String     @unique
+  name         String
+  passwordHash String
+  active       Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  auditLogs    AuditLog[]
+}
+
+model SponsorMedia {
+  id          String    @id @default(cuid())
+  name        String
+  fileUrl     String
+  type        MediaType
+  mimeType    String
+  durationSec Int       @default(10)
+  sortOrder   Int       @default(0)
+  startsAt    DateTime?
+  endsAt      DateTime?
+  active      Boolean   @default(true)
+  priority    Int       @default(0)
+  sponsorName String?
+  sponsorLink String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([active, sortOrder])
+}
+
+model Student {
+  id         String       @id @default(cuid())
+  externalId String?      @unique
+  name       String
+  photoUrl   String?
+  birthDate  DateTime?
+  active     Boolean      @default(true)
+  source     EventSource  @default(OTHER)
+  birthdays  Birthday[]
+  entries    EntryEvent[]
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+}
+
+model Birthday {
+  id             String   @id @default(cuid())
+  studentId      String?
+  student        Student? @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  name           String
+  birthDate      DateTime
+  photoUrl       String?
+  message        String?
+  showLastName   Boolean  @default(false)
+  active         Boolean  @default(true)
+  externalSource String?
+  externalId     String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([active, birthDate])
+}
+
+model EntryEvent {
+  id          String        @id @default(cuid())
+  studentId   String?
+  student     Student?      @relation(fields: [studentId], references: [id], onDelete: SetNull)
+  externalId  String
+  studentName String
+  enteredAt   DateTime
+  unitId      String
+  source      EventSource   @default(TURNSTILE)
+  duplicate   Boolean       @default(false)
+  rawPayload  Json?
+  queueItem   WelcomeQueue?
+  createdAt   DateTime      @default(now())
+
+  @@index([externalId, enteredAt])
+}
+
+model WelcomeQueue {
+  id           String      @id @default(cuid())
+  entryEventId String      @unique
+  entryEvent   EntryEvent  @relation(fields: [entryEventId], references: [id], onDelete: Cascade)
+  displayName  String
+  message      String
+  status       QueueStatus @default(PENDING)
+  priority     Int         @default(0)
+  expiresAt    DateTime
+  displayedAt  DateTime?
+  completedAt  DateTime?
+  createdAt    DateTime    @default(now())
+
+  @@index([status, createdAt])
+}
+
+model DisplayDevice {
+  id           String              @id @default(cuid())
+  name         String              @unique
+  unitId       String
+  tokenHash    String?
+  status       DeviceStatus        @default(OFFLINE)
+  lastSeenAt   DateTime?
+  currentMedia String?
+  paused       Boolean             @default(false)
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+  connections  DisplayConnection[]
+}
+
+model DisplayConnection {
+  id             String        @id @default(cuid())
+  deviceId       String
+  device         DisplayDevice @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  connectedAt    DateTime      @default(now())
+  disconnectedAt DateTime?
+  ipAddress      String?
+  userAgent      String?
+}
+
+model SystemSettings {
+  id                       String   @id @default("default")
+  welcomeDurationSec       Int      @default(15)
+  birthdayDurationSec      Int      @default(8)
+  duplicateWindowMin       Int      @default(10)
+  defaultWelcomeMessage    String   @default("Seja bem-vindo, {nome}!")
+  alternateMessages        Json     @default("[]")
+  randomMessages           Boolean  @default(false)
+  logoUrl                  String   @default("/demo/logo-ct.svg")
+  fallbackTitle            String   @default("CT Ítalo Vieira")
+  fallbackSubtitle         String   @default("Força. Movimento. Evolução.")
+  tvTokenHash              String?
+  entryApiKeyHash          String?
+  timezone                 String   @default("America/Sao_Paulo")
+  unitId                   String   @default("ct-italo-vieira")
+  showClock                Boolean  @default(true)
+  maxQueueSize             Int      @default(50)
+  eventTtlMin              Int      @default(30)
+  reducedDurationThreshold Int      @default(8)
+  reducedDurationSec       Int      @default(8)
+  updatedAt                DateTime @updatedAt
+}
+
+model AuditLog {
+  id          String     @id @default(cuid())
+  adminUserId String?
+  adminUser   AdminUser? @relation(fields: [adminUserId], references: [id], onDelete: SetNull)
+  action      String
+  entity      String
+  entityId    String?
+  details     Json?
+  ipAddress   String?
+  createdAt   DateTime   @default(now())
+}
