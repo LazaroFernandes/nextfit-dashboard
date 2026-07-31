@@ -19,14 +19,14 @@ Aplicação Next.js para a programação das TVs do CT: playlist de patrocinador
 3. Instale: `npm install`.
 4. Crie as tabelas: `npm run db:migrate`.
 5. Carregue a demonstração: `npm run db:seed`.
-6. Rode: `npm run dev` e abra `http://localhost:3000/admin`.
+6. Rode: `npm run dev` e abra `http://localhost:4000/admin`.
 
-A URL da TV é `http://localhost:3000/tv?token=VALOR_DE_TV_DISPLAY_TOKEN`. Use F11 ou modo quiosque do navegador.
+A URL da TV é `http://localhost:4000/tv?token=VALOR_DE_TV_DISPLAY_TOKEN`. Use F11 ou modo quiosque do navegador.
 
 ## Webhook da catraca
 
 ```bash
-curl -X POST http://localhost:3000/api/entry \
+curl -X POST http://localhost:4000/api/entry \
   -H "Content-Type: application/json" \
   -H "X-Api-Key: VALOR_DE_ENTRY_API_KEY" \
   -d '{"studentId":"12345","name":"Lázaro Fernandes","enteredAt":"2026-07-31T10:30:00-03:00","unitId":"ct-italo-vieira"}'
@@ -48,7 +48,7 @@ npm run admin:create -- gestor@ct.com "Gestor" "uma-senha-segura"
 2. Crie a aplicação apontando para o diretório `midia-indoor` e selecione build por Dockerfile.
 3. Cadastre as variáveis do `.env.example`; gere `AUTH_SECRET`, `ENTRY_API_KEY` e `TV_DISPLAY_TOKEN` aleatórios.
 4. Monte um volume persistente em `/app/public/uploads`.
-5. Configure o health check em `/api/health` e exponha a porta `3000`.
+5. Configure o health check em `/api/health` e exponha a porta `4000`.
 
 O container executa `prisma migrate deploy` antes de iniciar. Para múltiplas réplicas, substitua o barramento SSE em memória por Redis Pub/Sub; uma única réplica é a configuração indicada para a instalação inicial.
 
