@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 120">
+  <rect width="320" height="120" rx="18" fill="#0c0f13"/>
+  <path d="M38 78 66 30h29L66 78H38Zm58 0 28-48h29l-28 48H96Z" fill="#f1c85b"/>
+  <text x="164" y="57" fill="white" font-family="Arial,sans-serif" font-size="25" font-weight="800">CT ÍTALO</text>
+  <text x="164" y="84" fill="#9aa3ad" font-family="Arial,sans-serif" font-size="20" font-weight="600">VIEIRA</text>
+</svg>

@@ -1,0 +1,8 @@
+import { NextRequest, NextResponse } from "next/server";
+import { adminOrUnauthorized } from "@/lib/auth-api";
+import { db } from "@/lib/db";
+import { emitTvEvent } from "@/lib/events";
+import { birthdaySchema } from "@/lib/schemas";
+
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) { const auth = await adminOrUnauthorized(); if ("response" in auth) return auth.response; const { id } = await params; const parsed = birthdaySchema.safeParse({ ...(await request.json()), id }); if (!parsed.success) return NextResponse.json({ error: "Dados inválidos", details: parsed.error.flatten() }, { status: 400 }); const v = parsed.data; const item = await db.birthday.update({ where: { id }, data: { name: v.name.replace(/[<>]/g, ""), birthDate: new Date(`${v.birthDate.slice(0,10)}T12:00:00Z`), photoUrl: v.photoUrl || null, message: v.message || null, showLastName: v.showLastName, active: v.active } }); await db.auditLog.create({ data: { adminUserId: auth.session.sub, action: "UPDATE", entity: "Birthday", entityId: id } }); emitTvEvent({ type: "playlist.reload" }); return NextResponse.json(item); }
+export async function DELETE(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) { const auth = await adminOrUnauthorized(); if ("response" in auth) return auth.response; const { id } = await params; await db.birthday.delete({ where: { id } }); await db.auditLog.create({ data: { adminUserId: auth.session.sub, action: "DELETE", entity: "Birthday", entityId: id } }); emitTvEvent({ type: "playlist.reload" }); return NextResponse.json({ ok: true }); }
