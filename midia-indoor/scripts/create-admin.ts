@@ -1,0 +1,3 @@
+import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcryptjs";
+const [email,name,password]=process.argv.slice(2); if(!email||!name||!password||password.length<10){console.error("Uso: npm run admin:create -- email nome senha-com-10-caracteres");process.exit(1);} const db=new PrismaClient(); await db.adminUser.upsert({where:{email:email.toLowerCase()},update:{name,passwordHash:await bcrypt.hash(password,12),active:true},create:{email:email.toLowerCase(),name,passwordHash:await bcrypt.hash(password,12)}});console.log(`Administrador ${email} criado/atualizado.`);await db.$disconnect();
