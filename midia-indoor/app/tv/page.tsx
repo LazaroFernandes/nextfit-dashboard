@@ -8,7 +8,12 @@ export default async function TvPage({ searchParams }: { searchParams: Promise<{
   const params = await searchParams;
   const token = params.token || "";
   const device = params.device || "tv-principal";
-  const legacyReload = <script dangerouslySetInnerHTML={{ __html: "window.__ctivLegacyReload=window.setTimeout(function(){window.location.reload();},5000);" }} />;
-  if (!(await validateTvToken(token))) return <>{legacyReload}<TvScreen token={token} device={device} initialData={null} initialError="Token de exibição inválido" /></>;
-  return <>{legacyReload}<TvScreen token={token} device={device} initialData={await loadTvBootstrap(device)} /></>;
+  if (!(await validateTvToken(token))) return <TvScreen token={token} device={device} initialData={null} initialError="Token de exibição inválido" />;
+  const data = await loadTvBootstrap(device);
+  const welcome = data.queue[0];
+  const duration = welcome && data.queue.length >= data.settings.reducedDurationThreshold ? data.settings.reducedDurationSec : data.settings.welcomeDurationSec;
+  const target = welcome ? `/api/tv/legacy-complete?token=${encodeURIComponent(token)}&device=${encodeURIComponent(device)}&id=${encodeURIComponent(welcome.id)}` : `/tv?token=${encodeURIComponent(token)}&device=${encodeURIComponent(device)}`;
+  const delay = welcome ? duration * 1000 : 5000;
+  const legacyReload = <script dangerouslySetInnerHTML={{ __html: `window.__ctivLegacyReload=window.setTimeout(function(){window.location.replace(${JSON.stringify(target)});},${delay});` }} />;
+  return <>{legacyReload}<TvScreen token={token} device={device} initialData={data} /></>;
 }
