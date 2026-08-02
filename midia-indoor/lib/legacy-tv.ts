@@ -44,7 +44,7 @@ html,body{width:100%;height:100%;margin:0;padding:0;overflow:hidden;background:#
 #screen{position:absolute;left:0;top:0;width:100%;height:100%;overflow:hidden;background:#061027}
 #media{position:absolute;left:0;top:0;width:100%;height:100%;display:table;background:#061027;text-align:center}
 #media-inner{display:table-cell;width:100%;height:100%;vertical-align:middle;text-align:center}
-#media img,#media video{display:inline-block;max-width:100%;max-height:100%;width:auto;height:auto;vertical-align:middle}
+#media img,#media video{display:inline-block;max-width:100%;max-height:92vh;width:auto;height:auto;vertical-align:middle}
 .fallback strong,.fallback span{display:block}.fallback strong{font-size:5vw}.fallback span{margin-top:2vh;font-size:2vw;color:#9fb2d9}
 #shade{position:absolute;left:0;right:0;bottom:0;height:25%;background:#020714;opacity:.78;filter:alpha(opacity=78)}
 #birthday{position:absolute;right:2.2%;top:4%;width:25%;min-height:18%;max-height:69%;overflow:hidden;padding:1.5%;background:#111827;border:3px solid #f8cc4c;-webkit-border-radius:12px;border-radius:12px;-webkit-box-shadow:0 5px 20px #000;box-shadow:0 5px 20px #000}
