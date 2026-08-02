@@ -33,7 +33,7 @@ export async function loadTvBootstrap(deviceName: string): Promise<TvBootstrapDa
   const birthdays = birthdaysRaw.filter((item) => {
     const parts = localDateParts(item.birthDate, "UTC");
     return parts.month === birthdayParts.month && parts.day === birthdayParts.day;
-  }).map(({ birthDate: _birthDate, ...birthday }) => birthday);
+  }).map((item) => ({ id: item.id, name: item.name, photoUrl: item.photoUrl, message: item.message, showLastName: item.showLastName }));
 
   return {
     media,

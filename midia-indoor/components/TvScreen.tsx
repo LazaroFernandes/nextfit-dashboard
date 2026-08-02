@@ -14,11 +14,16 @@ export default function TvScreen({ token, device, initialData = null, initialErr
   const [data, setData] = useState<Bootstrap | null>(initialData);
   const [mediaIndex, setMediaIndex] = useState(0);
   const [queue, setQueue] = useState<QueueItem[]>(initialData?.queue || []);
-  const [welcome, setWelcome] = useState<QueueItem | null>(null);
+  const [welcome, setWelcome] = useState<QueueItem | null>(initialData?.queue[0] || null);
   const [online, setOnline] = useState(false);
   const [error, setError] = useState(initialError);
   const [now, setNow] = useState(new Date());
   const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const legacyWindow = window as Window & { __ctivLegacyReload?: number };
+    if (legacyWindow.__ctivLegacyReload) window.clearTimeout(legacyWindow.__ctivLegacyReload);
+  }, []);
 
   const load = useCallback(async () => {
     try {
@@ -26,19 +31,20 @@ export default function TvScreen({ token, device, initialData = null, initialErr
       if (!response.ok) throw new Error(response.status === 401 ? "Token de exibição inválido" : "Falha ao carregar a programação");
       const fresh = await response.json() as Bootstrap;
       setData(fresh); setQueue((current) => mergeQueue(current, fresh.queue)); setOnline(true); setError("");
-      localStorage.setItem(CACHE_KEY, JSON.stringify(fresh));
+      saveCache(fresh);
     } catch (reason) {
       setOnline(false); setError(reason instanceof Error ? reason.message : "Tela indisponível");
-      const cached = localStorage.getItem(CACHE_KEY);
-      if (cached) { const parsed = JSON.parse(cached) as Bootstrap; setData((current) => current ?? parsed); setQueue((current) => current.length ? current : (parsed.queue || [])); }
+      const parsed = readCache();
+      if (parsed) { setData((current) => current ?? parsed); setQueue((current) => current.length ? current : (parsed.queue || [])); }
     }
   }, [token, device]);
 
   useEffect(() => { const initial = setTimeout(() => void load(), 0); return () => clearTimeout(initial); }, [load]);
+  useEffect(() => { const polling = setInterval(() => void load(), 5000); return () => clearInterval(polling); }, [load]);
   useEffect(() => { const timer = setInterval(() => setNow(new Date()), 1000); return () => clearInterval(timer); }, []);
 
   useEffect(() => {
-    if (!token) return;
+    if (!token || typeof EventSource === "undefined") return;
     let retry: ReturnType<typeof setTimeout>;
     let source: EventSource;
     const connect = () => {
@@ -138,4 +144,12 @@ function mergeQueue(current: QueueItem[], incoming: QueueItem[]) {
 function displayBirthdayName(birthday: Birthday) {
   const parts = birthday.name.trim().split(/\s+/);
   return birthday.showLastName ? parts.slice(0, 2).join(" ") : parts[0];
+}
+
+function saveCache(data: Bootstrap) {
+  try { localStorage.setItem(CACHE_KEY, JSON.stringify(data)); } catch { /* Smart TVs may disable storage. */ }
+}
+
+function readCache() {
+  try { const cached = localStorage.getItem(CACHE_KEY); return cached ? JSON.parse(cached) as Bootstrap : null; } catch { return null; }
 }
