@@ -1,0 +1,15 @@
+services:
+  catraca-entry:
+    build: .
+    restart: unless-stopped
+    env_file: ${CATRACA_ENV_FILE:-.env}
+    ports:
+      - "127.0.0.1:8010:8010"
+    volumes:
+      - ./data:/app/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8010/health', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
