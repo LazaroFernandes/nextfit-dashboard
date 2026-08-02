@@ -10,10 +10,10 @@ export async function syncNextfitBirthdays(adminUserId?: string) {
   for (const row of records) {
     const existing = await db.birthday.findFirst({ where: { externalSource: "NEXTFIT", externalId: row.externalId } });
     if (existing) {
-      await db.birthday.update({ where: { id: existing.id }, data: { name: row.name, birthDate: row.birthDate, photoUrl: row.photoUrl, active: true } });
+      await db.birthday.update({ where: { id: existing.id }, data: { name: row.name, birthDate: row.birthDate, photoUrl: row.photoUrl, showLastName: true, active: true } });
       updated += 1;
     } else {
-      await db.birthday.create({ data: { ...row, externalSource: "NEXTFIT", active: true } });
+      await db.birthday.create({ data: { ...row, externalSource: "NEXTFIT", showLastName: true, active: true } });
       created += 1;
     }
   }
