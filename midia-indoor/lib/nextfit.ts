@@ -16,7 +16,7 @@ export async function fetchEligibleBirthdays() {
   }).map((client)=>({ externalId:String(client.id), name:client.nome!.trim(), birthDate:new Date(client.dataNascimento!), photoUrl:client.foto||null }));
 }
 
-async function paginate<T>(url:string,apiKey:string) { const result:T[]=[]; let skip=0; while(true){const response=await fetch(`${url}?Skip=${skip}&Take=100`,{headers:{"X-Api-Key":apiKey,Accept:"application/json"},cache:"no-store",signal:AbortSignal.timeout(60_000)});if(!response.ok)throw new Error(`NextFit respondeu HTTP ${response.status}`);const data=await response.json() as {items?:T[];temProximaPagina?:boolean};result.push(...(data.items||[]));if(!data.temProximaPagina)break;skip+=100;}return result; }
+async function paginate<T>(url:string,apiKey:string) { const result:T[]=[]; let skip=0; const pageSize=30; while(true){const response=await fetch(`${url}?Skip=${skip}&Take=${pageSize}`,{headers:{"X-Api-Key":apiKey,Accept:"application/json"},cache:"no-store",signal:AbortSignal.timeout(60_000)});if(!response.ok)throw new Error(`NextFit respondeu HTTP ${response.status}`);const data=await response.json() as {items?:T[];temProximaPagina?:boolean};result.push(...(data.items||[]));if(!data.temProximaPagina)break;skip+=pageSize;}return result; }
 function parseDate(value?:string){if(!value)return null;const date=new Date(value);return Number.isNaN(date.getTime())?null:date;}
 function dateValue(value?:string){return parseDate(value)?.getTime()||0;}
 function startOfDay(date:Date){return new Date(date.getFullYear(),date.getMonth(),date.getDate());}
