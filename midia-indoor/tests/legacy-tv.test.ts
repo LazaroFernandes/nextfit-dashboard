@@ -28,5 +28,6 @@ describe("legacy TV renderer", () => {
     expect(html).not.toContain("EventSource");
     expect(html).not.toContain("fetch(");
     expect(html).not.toContain("=>");
+    expect(html).toContain("renderMedia();renderAll();clock();");
   });
 });

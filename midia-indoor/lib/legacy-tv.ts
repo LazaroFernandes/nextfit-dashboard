@@ -80,7 +80,7 @@ function renderWelcome(){var items=state.queue||[],item=items[0],duration;if(!it
 function renderAll(){byId("screen").className=state.paused?"paused":"";renderBirthdays();renderWelcome();}
 function poll(){request("GET","/api/tv/bootstrap?token="+encodeURIComponent(token)+"&device="+encodeURIComponent(device)+"&_="+(new Date().getTime()),null,function(xhr){if(xhr.status>=200&&xhr.status<300){try{var next=JSON.parse(xhr.responseText),mediaChanged=JSON.stringify(next.media||[])!==JSON.stringify(state.media||[]);state=next;if(mediaChanged){mediaIndex=0;renderMedia();}renderAll();}catch(ignore){}}});}
 function clock(){var d=new Date(),h=d.getHours(),m=d.getMinutes();byId("clock").innerHTML=(h<10?"0":"")+h+":"+(m<10?"0":"")+m;}
-renderAll();clock();window.setInterval(clock,1000);window.setInterval(poll,4000);
+renderMedia();renderAll();clock();window.setInterval(clock,1000);window.setInterval(poll,4000);
 })();
 </script></body></html>`;
 }
