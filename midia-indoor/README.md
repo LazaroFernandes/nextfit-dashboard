@@ -10,7 +10,7 @@ Aplicação Next.js para a programação das TVs do CT: playlist de patrocinador
 - `/api/tv/events`: Server-Sent Events com reconexão automática e heartbeat.
 - Cache local da última programação; fallback institucional quando não há conexão ou mídia.
 - PostgreSQL + Prisma, login com bcrypt e cookie JWT `httpOnly`, auditoria administrativa.
-- Sincronização manual dos aniversariantes elegíveis com clientes/contratos do NextFit.
+- Sincronização manual e automática dos aniversariantes elegíveis com clientes/contratos do NextFit.
 
 ## Rodar localmente
 
@@ -49,6 +49,7 @@ npm run admin:create -- gestor@ct.com "Gestor" "uma-senha-segura"
 3. Cadastre as variáveis do `.env.example`; gere `AUTH_SECRET`, `ENTRY_API_KEY` e `TV_DISPLAY_TOKEN` aleatórios.
 4. Monte um volume persistente em `/app/public/uploads`.
 5. Configure o health check em `/api/health` e exponha a porta `4000`.
+6. Crie uma tarefa agendada diária (`5 8 * * *`) com o comando `curl -fsS -X POST http://localhost:4000/api/cron/birthdays -H "X-Api-Key: $ENTRY_API_KEY"`.
 
 O container executa `prisma migrate deploy` antes de iniciar. Para múltiplas réplicas, substitua o barramento SSE em memória por Redis Pub/Sub; uma única réplica é a configuração indicada para a instalação inicial.
 

@@ -7,16 +7,17 @@ export async function GET() {
   const auth = await adminOrUnauthorized(); if ("response" in auth) return auth.response;
   const now = new Date(); const settings = await getSettings(); const stale = new Date(now.getTime() - 45_000);
   await db.displayDevice.updateMany({ where: { lastSeenAt: { lt: stale } }, data: { status: "OFFLINE" } });
-  const [media, birthdays, queue, lastEntry, devices, activeMedia] = await Promise.all([
+  const [media, birthdays, queue, lastEntry, devices, activeMedia, lastBirthdaySync] = await Promise.all([
     db.sponsorMedia.findMany({ orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }] }),
     db.birthday.findMany({ orderBy: { name: "asc" } }),
     db.welcomeQueue.findMany({ where: { status: { in: ["PENDING", "DISPLAYING"] }, expiresAt: { gt: now } }, orderBy: { createdAt: "asc" } }),
     db.entryEvent.findFirst({ where: { duplicate: false }, orderBy: { enteredAt: "desc" } }),
     db.displayDevice.findMany({ orderBy: { name: "asc" } }),
     db.sponsorMedia.count({ where: { active: true } }),
+    db.auditLog.findFirst({ where: { action: { in: ["SYNC_NEXTFIT", "SYNC_NEXTFIT_AUTO"] }, entity: "Birthday" }, orderBy: { createdAt: "desc" } }),
   ]);
   const today = new Intl.DateTimeFormat("en-US", { month: "numeric", day: "numeric", timeZone: settings.timezone }).format(now);
   const birthdaysToday = birthdays.filter((item) => new Intl.DateTimeFormat("en-US", { month: "numeric", day: "numeric", timeZone: "UTC" }).format(item.birthDate) === today).length;
   const safeSettings = Object.fromEntries(Object.entries(settings).filter(([key]) => !["tvTokenHash", "entryApiKeyHash"].includes(key)));
-  return NextResponse.json({ media, birthdays, queue, lastEntry, devices, settings: safeSettings, metrics: { activeMedia, birthdaysToday, queueSize: queue.length, onlineDevices: devices.filter((device) => device.status === "ONLINE").length } });
+  return NextResponse.json({ media, birthdays, queue, lastEntry, devices, settings: safeSettings, birthdaySync: lastBirthdaySync ? { lastRunAt: lastBirthdaySync.createdAt, automatic: lastBirthdaySync.action === "SYNC_NEXTFIT_AUTO", details: lastBirthdaySync.details } : null, metrics: { activeMedia, birthdaysToday, queueSize: queue.length, onlineDevices: devices.filter((device) => device.status === "ONLINE").length } });
 }
