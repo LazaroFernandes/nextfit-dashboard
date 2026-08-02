@@ -6,10 +6,13 @@ services:
     ports:
       - "127.0.0.1:8010:8010"
     volumes:
-      - ./data:/app/data
+      - catraca-entry-data:/app/data
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8010/health', timeout=3)"]
       interval: 30s
       timeout: 5s
       retries: 3
       start_period: 15s
+
+volumes:
+  catraca-entry-data:
