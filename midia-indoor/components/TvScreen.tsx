@@ -2,22 +2,21 @@
 /* eslint-disable @next/next/no-img-element */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type { TvBootstrapData } from "@/lib/tv-bootstrap";
 
-type Media = { id: string; name: string; fileUrl: string; type: "IMAGE" | "VIDEO"; durationSec: number; sponsorName?: string | null };
 type Birthday = { id: string; name: string; photoUrl?: string | null; message?: string | null; showLastName: boolean };
 type QueueItem = { id: string; displayName: string; message: string; createdAt: string };
-type Settings = { welcomeDurationSec: number; birthdayDurationSec: number; fallbackTitle: string; fallbackSubtitle: string; logoUrl: string; showClock: boolean; timezone: string; reducedDurationThreshold: number; reducedDurationSec: number };
-type Bootstrap = { media: Media[]; birthdays: Birthday[]; queue: QueueItem[]; settings: Settings; paused: boolean };
+type Bootstrap = TvBootstrapData;
 
 const CACHE_KEY = "ctiv-tv-bootstrap-v1";
 
-export default function TvScreen({ token, device }: { token: string; device: string }) {
-  const [data, setData] = useState<Bootstrap | null>(null);
+export default function TvScreen({ token, device, initialData = null, initialError = "" }: { token: string; device: string; initialData?: Bootstrap | null; initialError?: string }) {
+  const [data, setData] = useState<Bootstrap | null>(initialData);
   const [mediaIndex, setMediaIndex] = useState(0);
-  const [queue, setQueue] = useState<QueueItem[]>([]);
+  const [queue, setQueue] = useState<QueueItem[]>(initialData?.queue || []);
   const [welcome, setWelcome] = useState<QueueItem | null>(null);
   const [online, setOnline] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(initialError);
   const [now, setNow] = useState(new Date());
   const videoRef = useRef<HTMLVideoElement>(null);
 

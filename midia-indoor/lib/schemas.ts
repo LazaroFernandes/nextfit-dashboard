@@ -33,6 +33,6 @@ export const settingsSchema = z.object({
   eventTtlMin: z.coerce.number().int().min(1).max(1440),
   reducedDurationThreshold: z.coerce.number().int().min(1).max(100),
   reducedDurationSec: z.coerce.number().int().min(3).max(30),
-  tvToken: z.string().min(12).optional().or(z.literal("")),
+  tvToken: z.string().trim().optional(),
   entryApiKey: z.string().min(16).optional().or(z.literal("")),
 });
