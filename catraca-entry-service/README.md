@@ -50,4 +50,6 @@ curl "https://catraca.seudominio.com/v1/entries?after=0" \
 
 O banco SQLite e os tokens renovados ficam no volume Docker nomeado `catraca-entry-data`. Se o access token expirar, o serviço tenta renová-lo e persiste a rotação do refresh token nesse volume.
 
+Quando `MIDIA_ENTRY_URL`, `MIDIA_ENTRY_API_KEY` e `MIDIA_UNIT_ID` estão configurados, cada nova entrada é enviada ao Mídia Indoor. A entrega usa uma fila persistente no mesmo SQLite: falhas permanecem pendentes e são tentadas novamente, enquanto eventos anteriores à ativação da integração não são reenviados.
+
 No Coolify, use exclusivamente **Volume Mount** com destino `/app/data`. Deixe `Source Path`/`Host Path` vazio; nunca monte `/` ou outro diretório da VPS. O container inicia diretamente como o usuário não-root `appuser` e não executa `chown` em tempo de inicialização.

@@ -34,8 +34,9 @@ def event_key(row: dict) -> str:
 
 
 class EntryStore:
-    def __init__(self, path: Path):
+    def __init__(self, path: Path, delivery_enabled: bool = False):
         self.path = path
+        self.delivery_enabled = delivery_enabled
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self._initialize()
 
@@ -55,9 +56,18 @@ class EntryStore:
                         student_id TEXT NOT NULL,
                         student_name TEXT NOT NULL,
                         entered_at TEXT NOT NULL,
-                        received_at TEXT NOT NULL
+                        received_at TEXT NOT NULL,
+                        delivered_at TEXT
                     )
                 """)
+                columns = {
+                    row[1] for row in connection.execute("PRAGMA table_info(entry_events)")
+                }
+                if "delivered_at" not in columns:
+                    connection.execute("ALTER TABLE entry_events ADD COLUMN delivered_at TEXT")
+                    connection.execute(
+                        "UPDATE entry_events SET delivered_at = received_at WHERE delivered_at IS NULL"
+                    )
                 connection.execute("""
                     CREATE TABLE IF NOT EXISTS service_state (
                         key TEXT PRIMARY KEY,
@@ -80,10 +90,17 @@ class EntryStore:
                     cursor = connection.execute(
                         """
                         INSERT OR IGNORE INTO entry_events
-                            (event_key, student_id, student_name, entered_at, received_at)
-                        VALUES (?, ?, ?, ?, ?)
+                            (event_key, student_id, student_name, entered_at, received_at, delivered_at)
+                        VALUES (?, ?, ?, ?, ?, ?)
                         """,
-                        (event_key(row), student_id, name, entered_at.isoformat(), received_at.isoformat()),
+                        (
+                            event_key(row),
+                            student_id,
+                            name,
+                            entered_at.isoformat(),
+                            received_at.isoformat(),
+                            None if self.delivery_enabled else received_at.isoformat(),
+                        ),
                     )
                     inserted += cursor.rowcount
         return inserted
@@ -108,6 +125,35 @@ class EntryStore:
                 """
             ).fetchone()
         return dict(row) if row else None
+
+    def pending_deliveries(self, limit: int = 100) -> list[dict]:
+        with closing(self._connect()) as connection:
+            rows = connection.execute(
+                """
+                SELECT id, student_id, student_name, entered_at, received_at
+                FROM entry_events
+                WHERE delivered_at IS NULL
+                ORDER BY id ASC
+                LIMIT ?
+                """,
+                (limit,),
+            ).fetchall()
+        return [dict(row) for row in rows]
+
+    def mark_delivered(self, entry_id: int, delivered_at: datetime) -> None:
+        with closing(self._connect()) as connection:
+            with connection:
+                connection.execute(
+                    "UPDATE entry_events SET delivered_at = ? WHERE id = ?",
+                    (delivered_at.isoformat(), entry_id),
+                )
+
+    def pending_count(self) -> int:
+        with closing(self._connect()) as connection:
+            row = connection.execute(
+                "SELECT COUNT(*) AS total FROM entry_events WHERE delivered_at IS NULL"
+            ).fetchone()
+        return int(row["total"])
 
     def count(self) -> int:
         with closing(self._connect()) as connection:
