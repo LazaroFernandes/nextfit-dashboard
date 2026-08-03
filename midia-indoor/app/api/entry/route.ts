@@ -4,7 +4,7 @@ import { emitTvEvent } from "@/lib/events";
 import { allowRequest } from "@/lib/rate-limit";
 import { entrySchema } from "@/lib/schemas";
 import { getSettings, validateEntryKey } from "@/lib/settings";
-import { chooseWelcomeMessage, firstName, sanitizeDisplayName } from "@/lib/welcome";
+import { chooseWelcomeMessage, sanitizeDisplayName } from "@/lib/welcome";
 
 export async function POST(request: NextRequest) {
   const ip = request.headers.get("x-forwarded-for")?.split(",")[0] || "unknown";
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
   const result = await db.$transaction(async (tx) => {
     const student = await tx.student.upsert({ where: { externalId: parsed.data.studentId }, create: { externalId: parsed.data.studentId, name: cleanName, source: "TURNSTILE" }, update: { name: cleanName, active: true } });
     const event = await tx.entryEvent.create({ data: { studentId: student.id, externalId: parsed.data.studentId, studentName: cleanName, enteredAt, unitId: parsed.data.unitId, rawPayload: parsed.data } });
-    const queue = await tx.welcomeQueue.create({ data: { entryEventId: event.id, displayName: firstName(cleanName), message: chooseWelcomeMessage(cleanName, settings.defaultWelcomeMessage, alternatives, settings.randomMessages), expiresAt: new Date(enteredAt.getTime() + settings.eventTtlMin * 60_000) } });
+    const queue = await tx.welcomeQueue.create({ data: { entryEventId: event.id, displayName: cleanName, message: chooseWelcomeMessage(cleanName, settings.defaultWelcomeMessage, alternatives, settings.randomMessages), expiresAt: new Date(enteredAt.getTime() + settings.eventTtlMin * 60_000) } });
     return { event, queue };
   });
   emitTvEvent({ type: "welcome", payload: result.queue });
