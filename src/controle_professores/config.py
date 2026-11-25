@@ -5,6 +5,7 @@ from __future__ import annotations
 TAB_ALUNOS = "Alunos"
 TAB_REGISTRO = "RegistroSemanal"
 TAB_CONFIG = "Config"
+TAB_TAREFAS = "PainelTarefas"
 
 # Cabecalhos das abas (ordem importa — usado em writes/reads)
 HEADERS_ALUNOS = [

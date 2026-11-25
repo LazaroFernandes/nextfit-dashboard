@@ -1,6 +1,6 @@
 """Funcoes de leitura/escrita do RegistroSemanal (long format).
 
-Centralizam o "como ler e gravar" pra que os scripts e os apps Streamlit
+Centralizam o "como ler e gravar" para que scripts e interfaces web
 nao reimplementem a mesma logica varias vezes.
 """
 from __future__ import annotations

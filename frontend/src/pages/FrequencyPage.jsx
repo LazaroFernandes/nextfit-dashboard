@@ -1,5 +1,6 @@
-import { ChevronDown, LogOut, RefreshCw, Search, Users, UserX } from "lucide-react";
+import { ChevronDown, DoorOpen, LogOut, RefreshCw, Search, Users, UserX } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { api } from "../api/client";
 import { useAuth } from "../auth/AuthContext";
 import { ErrorState, Loading } from "../components/AsyncState";
@@ -63,6 +64,7 @@ export function FrequencyPage() {
           : "Os dados ainda não foram processados."}</p>
       </div>
       <div className="frequency-actions">
+        <Link className="button ghost" to="/academia"><DoorOpen size={17} /> Academia agora</Link>
         <button className="button ghost" onClick={logout}><LogOut size={17} /> Sair</button>
         <button className="button primary" onClick={refresh} disabled={refreshing}>
           <RefreshCw size={17} className={refreshing ? "spin" : ""} />
